@@ -108,6 +108,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 .toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .toggle-row>label{font-size:.85rem;cursor:pointer}
+.tog{display:inline-flex;width:48px;height:28px;border-radius:28px;border:2px solid var(--border-h);
+  background:var(--bg2);align-items:center;justify-content:flex-start;padding:2px;
+  font-size:0;transition:all .3s;flex-shrink:0;cursor:pointer;position:relative}
+.tog::after{content:'';width:22px;height:22px;border-radius:50%;background:var(--text-light);transition:all .3s}
+.tog.on{background:var(--gold-l);border-color:var(--gold)}
+.tog.on::after{transform:translateX(19px);background:var(--gold)}
 .switch{position:relative;width:44px;height:24px;flex-shrink:0;display:inline-block;cursor:pointer}
 .switch input{opacity:0;width:0;height:0;position:absolute}
 .switch .sl{position:absolute;inset:0;background:var(--bg2);border-radius:24px;border:1.5px solid var(--border-h);transition:.3s;cursor:pointer}
@@ -244,13 +250,18 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <!-- 업그레이드 -->
       <div class="sbox">
         <h4 class="g-t">⬆️ 프리미엄 업그레이드 (선택)</h4>
-        <div class="toggle-row">
-          <label class="switch"><input type="checkbox" id="useUpgrade" onchange="calc()"><span class="sl"></span></label>
-          <label for="useUpgrade" style="cursor:pointer">클래식 → 프리미엄 업그레이드 ($500 추가, +$750 리워드)</label>
+        <div class="toggle-row" onclick="toggleUpgrade()" style="cursor:pointer">
+          <span class="tog" id="upgToggle">○</span>
+          <span>클래식 → 프리미엄 업그레이드 ($500 추가, +$750 리워드)</span>
+          <input type="hidden" id="useUpgrade" value="0">
         </div>
         <div class="ib gold" id="upgradeInfo" style="display:none">
           <span class="bi">✨</span>
           <div>클래식 $200 + 업그레이드 $500 = <strong>총 $700</strong> | 리워드 $350 + $750 = <strong>$1,100</strong></div>
+        </div>
+        <div class="ib blue" style="margin-top:4px">
+          <span class="bi">💡</span>
+          <div>프리미엄 가입 후 <strong>1회에 한해 $100(클래식)으로 다운그레이드 가능</strong>합니다.</div>
         </div>
       </div>
 
@@ -314,12 +325,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
       </div>
 
-      <!-- 리워드 -->
+      <!-- 리워드 STEP 1 -->
       <div class="sbox">
-        <h4 class="g-t">🎁 리워드 할인</h4>
+        <h4 class="g-t">🎁 STEP 1 — 리워드 달러 차감 (1 RP = $1)</h4>
         <div class="toggle-row">
           <label class="switch"><input type="checkbox" id="useReward" checked onchange="calc()"><span class="sl"></span></label>
-          <label for="useReward" style="cursor:pointer">리워드를 캐빈가에서 추가 할인 (최대 50%)</label>
+          <label for="useReward" style="cursor:pointer">리워드를 캐빈가에서 차감 (최대 50%)</label>
         </div>
         <div class="row row-2">
           <div class="field"><label>가입 시 적립 리워드 (자동)</label><input type="text" id="planRwDisp" readonly style="color:var(--gold)"></div>
@@ -330,12 +341,36 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
         <div class="ib blue" style="margin-top:4px">
           <span class="bi">💡</span>
-          <div>기존 보유 리워드를 입력하면 <strong>보유 리워드만</strong> 적용됩니다. 0이면 가입 리워드가 적용됩니다.<br>리워드는 <strong>인사이더 할인 후 금액</strong> 기준 최대 50%까지 적용됩니다.</div>
+          <div>기존 보유 리워드를 입력하면 <strong>보유 리워드만</strong> 적용됩니다. 0이면 가입 리워드가 적용됩니다.<br>리워드는 <strong>인사이더 할인 후 금액</strong> 기준 최대 50%까지 차감됩니다.</div>
         </div>
         <div class="row row-3" style="margin-top:8px">
           <div class="field"><label>적용 리워드</label><input type="text" id="totalRwDisp" readonly style="color:var(--gold);font-weight:700"></div>
-          <div class="field"><label>실제 할인 (50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
-          <div class="field"><label>잔여 리워드</label><input type="text" id="remainRw" readonly></div>
+          <div class="field"><label>STEP1 할인 (50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
+          <div class="field"><label>STEP1 후 잔여 리워드</label><input type="text" id="remainRw" readonly></div>
+        </div>
+      </div>
+
+      <!-- 리워드 STEP 2 -->
+      <div class="sbox">
+        <h4 style="color:var(--accent)">💎 STEP 2 — 나머지 결제 방법</h4>
+        <div class="ib blue" style="margin-bottom:12px">
+          <span class="bi">💡</span>
+          <div>STEP1 리워드 차감 후 남은 캐빈 금액을 <strong>올 리워드 (2 RP = $1)</strong> 또는 <strong>카드</strong>로 결제할 수 있습니다.</div>
+        </div>
+        <div class="btn-row" id="payToggle">
+          <button class="sb" data-pay="reward" onclick="selectPay('reward')">
+            <div class="bm">💎 올 리워드</div><div class="bs">2 RP = $1 적용</div>
+          </button>
+          <button class="sb a-blue" data-pay="card" onclick="selectPay('card')">
+            <div class="bm">💳 카드 결제</div><div class="bs">남은 금액 카드 결제</div>
+          </button>
+        </div>
+        <div id="step2Detail" style="background:var(--bg2);border-radius:10px;padding:14px 16px;border:1px solid var(--border)">
+          <div class="dr"><span class="l">STEP1 후 남은 캐빈 금액</span><span class="v" id="s2_remain_cabin">-</span></div>
+          <div class="dr" id="s2_rp_row" style="display:none"><span class="l">리워드로 결제 (2 RP = $1)</span><span class="v" id="s2_rp_used" style="color:var(--gold);font-weight:700">-</span></div>
+          <div class="dr" id="s2_card_row"><span class="l">카드 결제 금액</span><span class="v" id="s2_card" style="color:var(--accent);font-weight:700">-</span></div>
+          <div class="dr" id="s2_rp_short" style="display:none"><span class="l" style="color:var(--red)">⚠️ 리워드 부족 — 카드 추가 결제</span><span class="v" id="s2_card_extra" style="color:var(--red);font-weight:700">-</span></div>
+          <div class="dr" id="s2_rp_remain_row" style="display:none"><span class="l">최종 잔여 리워드</span><span class="v" id="s2_rp_remain">-</span></div>
         </div>
       </div>
     </div>
@@ -470,7 +505,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 <script>
 const PLANS={starter:{fee:50,rw:50},classic:{fee:200,rw:350},premium:{fee:500,rw:800}};
 const UP_C=500,UP_R=750;
-let pl='classic',sub=100,mo=3,pre=2;
+let pl='classic',sub=100,mo=3,pre=2,payMethod='card';
 
 const $=id=>document.getElementById(id);
 const fU=n=>'$'+Math.round(n).toLocaleString('en-US');
@@ -503,14 +538,28 @@ $('moSlider').addEventListener('input',e=>syncMo(e.target.value));
 $('moInput').addEventListener('input',e=>syncMo(e.target.value));
 $('moInput').addEventListener('change',e=>syncMo(e.target.value));
 
+let upgradeOn=false;
+function toggleUpgrade(){
+  if(pl!=='classic') return; // only classic can upgrade
+  upgradeOn=!upgradeOn;
+  $('upgToggle').className=upgradeOn?'tog on':'tog';
+  $('useUpgrade').value=upgradeOn?'1':'0';
+  calc();
+}
+
 function selectPlan(p){
   pl=p;
   document.querySelectorAll('#planToggle .sb').forEach(b=>b.classList.toggle('a-gold',b.dataset.plan===p));
   // Upgrade only available for classic
-  if(p==='classic'){
-    $('useUpgrade').disabled=false;
+  if(p!=='classic'){
+    upgradeOn=false;
+    $('upgToggle').className='tog';
+    $('useUpgrade').value='0';
+    $('upgToggle').style.opacity='0.4';
+    $('upgToggle').style.pointerEvents='none';
   } else {
-    $('useUpgrade').checked=false;$('useUpgrade').disabled=true;
+    $('upgToggle').style.opacity='1';
+    $('upgToggle').style.pointerEvents='auto';
   }
   // Starter info
   $('starterInfo').style.display=p==='starter'?'flex':'none';
@@ -526,6 +575,11 @@ function selectPre(p){
   document.querySelectorAll('#preToggle .sb').forEach(b=>b.classList.toggle('a-blue',+b.dataset.pre===p));
   calc();
 }
+function selectPay(m){
+  payMethod=m;
+  document.querySelectorAll('#payToggle .sb').forEach(b=>b.classList.toggle('a-blue',b.dataset.pay===m));
+  calc();
+}
 
 function calc(){
   const cabin=+$('cabinUsd').value||0;
@@ -533,7 +587,7 @@ function calc(){
   const rate=+$('rate').value||1450;
   const useR=$('useReward').checked;
   const exR=+$('exReward').value||0;
-  const useUp=$('useUpgrade').checked&&pl==='classic';
+  const useUp=upgradeOn&&pl==='classic';
   const P=PLANS[pl];
 
   // D-day
@@ -567,7 +621,59 @@ function calc(){
   $('appliedRw').value=fU(applied);
   $('remainRw').value=fU(remain);
 
-  const dCabin=afterInsider-applied,dPP=pax>0?dCabin/pax:0;
+  // STEP2: 나머지 결제 방법
+  const remainCabin=afterInsider-applied; // STEP1 후 남은 캐빈 금액
+  let s2RpUsed=0,s2CardPay=0,s2CardExtra=0,finalRemainRw=remain;
+
+  if(payMethod==='reward'){
+    // 올 리워드: 2 RP = $1
+    const rpNeeded=remainCabin*2; // 필요한 RP
+    if(remain>=rpNeeded){
+      // 리워드 충분
+      s2RpUsed=rpNeeded;
+      s2CardPay=0;
+      s2CardExtra=0;
+      finalRemainRw=remain-rpNeeded;
+    } else {
+      // 리워드 부족 → 가능한 만큼 리워드, 나머지 카드
+      s2RpUsed=remain;
+      const coveredByRp=Math.floor(remain/2); // RP로 커버한 $
+      s2CardExtra=remainCabin-coveredByRp;
+      s2CardPay=0;
+      finalRemainRw=remain%2; // 남는 홀수 RP
+    }
+  } else {
+    // 카드 결제
+    s2CardPay=remainCabin;
+    finalRemainRw=remain;
+  }
+
+  // STEP2 display
+  $('s2_remain_cabin').textContent=fU(remainCabin);
+  if(payMethod==='reward'){
+    $('s2_rp_row').style.display='flex';
+    $('s2_rp_used').textContent=Math.round(s2RpUsed).toLocaleString('en-US')+' RP 사용';
+    $('s2_card_row').style.display='none';
+    if(s2CardExtra>0){
+      $('s2_rp_short').style.display='flex';
+      $('s2_card_extra').textContent=fU(s2CardExtra);
+    } else {
+      $('s2_rp_short').style.display='none';
+    }
+    $('s2_rp_remain_row').style.display='flex';
+    $('s2_rp_remain').textContent=Math.round(finalRemainRw).toLocaleString('en-US')+' RP';
+  } else {
+    $('s2_rp_row').style.display='none';
+    $('s2_rp_short').style.display='none';
+    $('s2_rp_remain_row').style.display='none';
+    $('s2_card_row').style.display='flex';
+    $('s2_card').textContent=fU(s2CardPay);
+  }
+
+  // dCabin for cost calculation: STEP2에서 카드로 내는 금액만 실제 현금 지출
+  const cardCabinPay = payMethod==='reward' ? s2CardExtra : s2CardPay;
+  const dCabin=cardCabinPay;
+  const dPP=pax>0?(afterInsider-applied)/pax:0; // 1인당은 할인 후 캐빈 기준
 
   // Subscription toggle
   const useSub=$('useSub').checked;
@@ -594,9 +700,9 @@ function calc(){
   sB.style.borderColor=pos?'rgba(26,138,92,.15)':'rgba(192,57,43,.15)';
   sB.style.background=pos?'linear-gradient(135deg,var(--green-l),var(--accent-l))':'var(--red-l)';
 
-  // Remain banner
+  // Remain banner — show final remaining after STEP1 + STEP2
   const rb=$('remainBanner');
-  if(remain>0){rb.style.display='flex';$('remainBannerAmt').textContent=fU(remain)}
+  if(finalRemainRw>0){rb.style.display='flex';$('remainBannerAmt').textContent=Math.round(finalRemainRw)+' RP ('+fU(Math.floor(finalRemainRw/2))+' 가치)'}
   else rb.style.display='none';
 
   // Retail BD
@@ -604,7 +710,7 @@ function calc(){
   $('bd_r_usd').textContent=fU(rU);$('bd_r_krw').textContent=fK(rK);
 
   // Member BD
-  const pL=pl==='classic'?'클래식':'프리미엄';
+  const pL=pl==='classic'?'클래식':(pl==='starter'?'스타터':'프리미엄');
   $('bd_m_cabin').textContent=fU(cabin);
   // Insider
   if(useInsider){
@@ -614,9 +720,9 @@ function calc(){
     $('bd_m_insider_r').style.display='none';
     $('bd_m_afterins_r').style.display='none';
   }
-  $('bd_m_rw').textContent=applied>0?'-'+fU(applied):'-';
-  $('bd_m_disc').textContent=fU(dCabin);
-  $('bd_m_dpp').textContent=`(1인당 약 ${fU(dPP)})`;
+  $('bd_m_rw').textContent=applied>0?'-'+fU(applied)+' (STEP1)':'-';
+  $('bd_m_disc').textContent=fU(cardCabinPay)+(payMethod==='reward'?' (카드 결제분)':' (카드 결제)');
+  $('bd_m_dpp').textContent=payMethod==='reward'&&s2RpUsed>0?`(올 리워드 ${Math.round(s2RpUsed)} RP 사용)`:`(1인당 약 ${fU(dPP)})`;
   $('bd_m_jl').textContent=`가입비 (${pL} ${fU(jF)})`;$('bd_m_j').textContent=fU(jF);
   $('bd_m_upr').style.display=useUp?'flex':'none';if(useUp)$('bd_m_up').textContent=fU(upC);
   if(useSub){
@@ -638,8 +744,12 @@ function calc(){
     $('bd_rwer').style.display='none';
     $('bd_rwt').textContent=fU(tPlanRw)+' (가입 리워드 적용)';
   }
-  $('bd_rwused').textContent=applied>0?'-'+fU(applied):'-';
-  $('bd_rwrem').textContent=fU(remain);
+  $('bd_rwused').textContent=applied>0?'-'+fU(applied)+' (STEP1 달러차감)':'-';
+  if(payMethod==='reward'&&s2RpUsed>0){
+    $('bd_rwrem').textContent=Math.round(finalRemainRw)+' RP (STEP2에서 '+Math.round(s2RpUsed)+' RP 사용)';
+  } else {
+    $('bd_rwrem').textContent=Math.round(finalRemainRw)+' RP';
+  }
 }
 
 document.querySelectorAll('input:not(#moSlider):not(#moInput)').forEach(el=>{el.addEventListener('input',calc);el.addEventListener('change',calc)});
