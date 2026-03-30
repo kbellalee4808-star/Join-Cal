@@ -108,8 +108,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 .toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .toggle-row>label{font-size:.85rem;cursor:pointer}
-.switch{position:relative;width:44px;height:24px;flex-shrink:0}
-.switch input{opacity:0;width:0;height:0}
+.switch{position:relative;width:44px;height:24px;flex-shrink:0;display:inline-block;cursor:pointer}
+.switch input{opacity:0;width:0;height:0;position:absolute}
 .switch .sl{position:absolute;inset:0;background:var(--bg2);border-radius:24px;border:1.5px solid var(--border-h);transition:.3s;cursor:pointer}
 .switch .sl::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;left:3px;top:2px;background:var(--text-light);transition:.3s}
 .switch input:checked+.sl{background:var(--gold-l);border-color:var(--gold)}
@@ -225,6 +225,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="sbox">
         <h4 class="g-t">🏷️ 가입 플랜 (1회 가입비)</h4>
         <div class="btn-row" id="planToggle">
+          <button class="sb" data-plan="starter" onclick="selectPlan('starter')">
+            <div class="bm">스타터</div><div class="bs">$50 → 리워드 $50</div>
+          </button>
           <button class="sb a-gold" data-plan="classic" onclick="selectPlan('classic')">
             <div class="bm">클래식</div><div class="bs">$200 → 리워드 $350</div>
           </button>
@@ -232,14 +235,18 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
             <div class="bm">프리미엄</div><div class="bs">$500 → 리워드 $800</div>
           </button>
         </div>
+        <div class="ib blue" id="starterInfo" style="display:none">
+          <span class="bi">💡</span>
+          <div>스타터 플랜은 2배 적립 없이 <strong>$50만 적립</strong>되며, 인사이더 프라이싱은 동일하게 이용 가능합니다.</div>
+        </div>
       </div>
 
       <!-- 업그레이드 -->
       <div class="sbox">
         <h4 class="g-t">⬆️ 프리미엄 업그레이드 (선택)</h4>
         <div class="toggle-row">
-          <div class="switch"><input type="checkbox" id="useUpgrade"><span class="sl"></span></div>
-          <label for="useUpgrade">클래식 → 프리미엄 업그레이드 ($500 추가, +$750 리워드)</label>
+          <label class="switch"><input type="checkbox" id="useUpgrade" onchange="calc()"><span class="sl"></span></label>
+          <label for="useUpgrade" style="cursor:pointer">클래식 → 프리미엄 업그레이드 ($500 추가, +$750 리워드)</label>
         </div>
         <div class="ib gold" id="upgradeInfo" style="display:none">
           <span class="bi">✨</span>
@@ -251,6 +258,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="sbox">
         <h4 class="b-t">💳 월 구독료</h4>
         <div class="btn-row" id="subToggle">
+          <button class="sb" data-sub="50" onclick="selectSub(50)">
+            <div class="bm">$50 / 월</div><div class="bs">스타터</div>
+          </button>
           <button class="sb a-blue" data-sub="100" onclick="selectSub(100)">
             <div class="bm">$100 / 월</div><div class="bs">클래식</div>
           </button>
@@ -261,8 +271,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
         <h4 class="b-t" style="margin-top:4px">📅 탑승까지 구독 유지</h4>
         <div class="toggle-row">
-          <div class="switch"><input type="checkbox" id="useSub" checked><span class="sl"></span></div>
-          <label for="useSub">탑승일까지 구독 유지 (이미 유지 중이면 끄세요)</label>
+          <label class="switch"><input type="checkbox" id="useSub" checked onchange="calc()"><span class="sl"></span></label>
+          <label for="useSub" style="cursor:pointer">탑승일까지 구독 유지 (이미 유지 중이면 끄세요)</label>
         </div>
         <div id="subControl">
           <div class="mo-control">
@@ -287,12 +297,29 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
       </div>
 
+      <!-- 인사이더 프라이싱 -->
+      <div class="sbox">
+        <h4 style="color:var(--accent)">🏆 인사이더 프라이싱 (Insider Pricing)</h4>
+        <div class="toggle-row">
+          <label class="switch"><input type="checkbox" id="useInsider" checked onchange="calc()"><span class="sl" style=""></span></label>
+          <label for="useInsider" style="cursor:pointer">멤버십 회원 기본 17% 할인 적용 (리워드 차감 없음)</label>
+        </div>
+        <div class="ib blue">
+          <span class="bi">💡</span>
+          <div>인사이더 프라이싱은 멤버십 회원이면 <strong>리워드 차감 없이</strong> 자동 적용되는 기본 할인입니다. 리워드 할인과 <strong>중복 적용</strong> 가능합니다.</div>
+        </div>
+        <div class="row row-2">
+          <div class="field"><label>인사이더 할인율</label><input type="text" id="insiderRate" readonly value="17%" style="color:var(--accent);font-weight:700"></div>
+          <div class="field"><label>인사이더 할인 금액</label><input type="text" id="insiderAmt" readonly style="color:var(--green);font-weight:700"></div>
+        </div>
+      </div>
+
       <!-- 리워드 -->
       <div class="sbox">
         <h4 class="g-t">🎁 리워드 할인</h4>
         <div class="toggle-row">
-          <div class="switch"><input type="checkbox" id="useReward" checked><span class="sl"></span></div>
-          <label for="useReward">리워드를 캐빈가에서 할인 (최대 50%)</label>
+          <label class="switch"><input type="checkbox" id="useReward" checked onchange="calc()"><span class="sl"></span></label>
+          <label for="useReward" style="cursor:pointer">리워드를 캐빈가에서 추가 할인 (최대 50%)</label>
         </div>
         <div class="row row-2">
           <div class="field"><label>가입 시 적립 리워드 (자동)</label><input type="text" id="planRwDisp" readonly style="color:var(--gold)"></div>
@@ -303,11 +330,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
         <div class="ib blue" style="margin-top:4px">
           <span class="bi">💡</span>
-          <div>기존 보유 리워드를 입력하면 <strong>보유 리워드만</strong> 적용됩니다. 0이면 가입 리워드가 적용됩니다.</div>
+          <div>기존 보유 리워드를 입력하면 <strong>보유 리워드만</strong> 적용됩니다. 0이면 가입 리워드가 적용됩니다.<br>리워드는 <strong>인사이더 할인 후 금액</strong> 기준 최대 50%까지 적용됩니다.</div>
         </div>
         <div class="row row-3" style="margin-top:8px">
           <div class="field"><label>적용 리워드</label><input type="text" id="totalRwDisp" readonly style="color:var(--gold);font-weight:700"></div>
-          <div class="field"><label>실제 할인 (캐빈가 50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
+          <div class="field"><label>실제 할인 (50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
           <div class="field"><label>잔여 리워드</label><input type="text" id="remainRw" readonly></div>
         </div>
       </div>
@@ -355,8 +382,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="bd" style="margin-top:12px">
         <h4>👑 멤버십 상세</h4>
         <div class="dr"><span class="l">캐빈 가격</span><span class="v" id="bd_m_cabin">-</span></div>
+        <div class="dr" id="bd_m_insider_r"><span class="l">🏆 인사이더 프라이싱 (-17%)</span><span class="v grn" id="bd_m_insider">-</span></div>
+        <div class="dr" id="bd_m_afterins_r"><span class="l">→ 인사이더 적용 후</span><span class="v" id="bd_m_afterins">-</span></div>
         <div class="dr"><span class="l">리워드 할인</span><span class="v grn" id="bd_m_rw">-</span></div>
-        <div class="dr"><span class="l">→ 할인 후 캐빈 결제액</span><span class="v" id="bd_m_disc">-</span></div>
+        <div class="dr"><span class="l">→ 최종 캐빈 결제액</span><span class="v" id="bd_m_disc">-</span></div>
         <div class="dr"><span class="l">&nbsp;</span><span class="v dim" id="bd_m_dpp">-</span></div>
         <div class="dr"><span class="l" id="bd_m_jl">가입비</span><span class="v" id="bd_m_j">-</span></div>
         <div class="dr" id="bd_m_upr" style="display:none"><span class="l">업그레이드</span><span class="v" id="bd_m_up">-</span></div>
@@ -439,7 +468,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </div>
 
 <script>
-const PLANS={classic:{fee:200,rw:350},premium:{fee:500,rw:800}};
+const PLANS={starter:{fee:50,rw:50},classic:{fee:200,rw:350},premium:{fee:500,rw:800}};
 const UP_C=500,UP_R=750;
 let pl='classic',sub=100,mo=3,pre=2;
 
@@ -477,8 +506,14 @@ $('moInput').addEventListener('change',e=>syncMo(e.target.value));
 function selectPlan(p){
   pl=p;
   document.querySelectorAll('#planToggle .sb').forEach(b=>b.classList.toggle('a-gold',b.dataset.plan===p));
-  if(p==='premium'){$('useUpgrade').checked=false;$('useUpgrade').disabled=true}
-  else $('useUpgrade').disabled=false;
+  // Upgrade only available for classic
+  if(p==='classic'){
+    $('useUpgrade').disabled=false;
+  } else {
+    $('useUpgrade').checked=false;$('useUpgrade').disabled=true;
+  }
+  // Starter info
+  $('starterInfo').style.display=p==='starter'?'flex':'none';
   calc();
 }
 function selectSub(s){
@@ -512,7 +547,14 @@ function calc(){
   const rU=cabin,rK=rU*rate;
   $('retailQuick').textContent=`${fU(rU)} = ${fK(rK)}`;
 
+  // Insider Pricing: 17% 할인 (리워드 차감 없음)
+  const useInsider=$('useInsider').checked;
+  const insiderDisc=useInsider?Math.round(cabin*0.17):0;
+  const afterInsider=cabin-insiderDisc;
+  $('insiderAmt').value=useInsider?('-'+fU(insiderDisc)):'-';
+
   // Rewards: 기존 보유 리워드 입력 시 보유만, 0이면 가입 리워드 적용
+  // 리워드는 인사이더 할인 후 금액 기준 최대 50%
   const pRw=P.rw,upRw=useUp?UP_R:0,tPlanRw=pRw+upRw;
   const useExisting=exR>0;
   const tRw=useExisting?exR:tPlanRw;
@@ -520,12 +562,12 @@ function calc(){
   $('totalRwDisp').value=useExisting?`${fU(exR)} (기존 보유)`:fU(tPlanRw)+' (가입 리워드)';
 
   let applied=0;
-  if(useR&&tRw>0) applied=Math.min(tRw,cabin*0.5);
+  if(useR&&tRw>0) applied=Math.min(tRw,afterInsider*0.5);
   const remain=Math.max(0,tRw-applied);
   $('appliedRw').value=fU(applied);
   $('remainRw').value=fU(remain);
 
-  const dCabin=cabin-applied,dPP=pax>0?dCabin/pax:0;
+  const dCabin=afterInsider-applied,dPP=pax>0?dCabin/pax:0;
 
   // Subscription toggle
   const useSub=$('useSub').checked;
@@ -564,6 +606,14 @@ function calc(){
   // Member BD
   const pL=pl==='classic'?'클래식':'프리미엄';
   $('bd_m_cabin').textContent=fU(cabin);
+  // Insider
+  if(useInsider){
+    $('bd_m_insider_r').style.display='flex';$('bd_m_insider').textContent='-'+fU(insiderDisc);
+    $('bd_m_afterins_r').style.display='flex';$('bd_m_afterins').textContent=fU(afterInsider);
+  } else {
+    $('bd_m_insider_r').style.display='none';
+    $('bd_m_afterins_r').style.display='none';
+  }
   $('bd_m_rw').textContent=applied>0?'-'+fU(applied):'-';
   $('bd_m_disc').textContent=fU(dCabin);
   $('bd_m_dpp').textContent=`(1인당 약 ${fU(dPP)})`;
