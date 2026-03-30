@@ -82,15 +82,24 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .sb.a-blue{border-color:var(--accent);background:var(--accent-l);color:var(--accent)}
 .sb .bm{font-weight:700;font-size:.95rem}.sb .bs{font-size:.72rem;margin-top:3px;color:var(--text-dim)}
 
-/* Month grid */
-.mgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
-@media(max-width:500px){.mgrid{grid-template-columns:repeat(4,1fr)}}
-.mb{padding:10px 4px;border-radius:10px;border:2px solid var(--border-h);background:var(--surface2);
-  color:var(--text-dim);cursor:pointer;text-align:center;font-family:inherit;font-size:.88rem;
-  font-weight:600;transition:all .25s}
-.mb:hover{border-color:rgba(0,0,0,.18)}
-.mb.active{border-color:var(--accent);background:var(--accent-l);color:var(--accent)}
-.mb .mc{font-size:.65rem;font-weight:400;display:block;margin-top:1px;color:var(--text-light)}
+/* Month slider + input */
+.mo-control{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+.range-slider{flex:1;-webkit-appearance:none;appearance:none;height:8px;border-radius:4px;
+  background:linear-gradient(to right,var(--accent-l),var(--accent));outline:none;cursor:pointer}
+.range-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--surface);box-shadow:0 2px 8px rgba(0,116,200,.3);cursor:pointer;transition:transform .15s}
+.range-slider::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.range-slider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--surface);box-shadow:0 2px 8px rgba(0,116,200,.3);cursor:pointer}
+.mo-input-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.mo-input{width:64px;padding:10px 8px;border-radius:10px;border:2px solid var(--accent);
+  background:var(--accent-l);color:var(--accent);font-size:1.1rem;font-weight:700;
+  text-align:center;font-family:inherit;-webkit-appearance:none}
+.mo-input:focus{outline:none;border-color:var(--navy)}
+.mo-unit{font-size:.85rem;font-weight:600;color:var(--accent)}
+.mo-summary{font-size:.88rem;color:var(--text-dim);margin-bottom:18px;padding:10px 14px;
+  background:var(--accent-l);border-radius:8px;text-align:center}
+.mo-summary strong{color:var(--accent)}
 
 /* Sections */
 .sbox{background:var(--bg2);border-radius:12px;padding:16px 18px;margin-bottom:16px;border:1px solid var(--border)}
@@ -250,8 +259,21 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           </button>
         </div>
 
-        <h4 class="b-t" style="margin-top:4px">📅 탑승까지 구독 유지 개월수</h4>
-        <div class="mgrid" id="monthGrid"></div>
+        <h4 class="b-t" style="margin-top:4px">📅 탑승까지 구독 유지</h4>
+        <div class="toggle-row">
+          <div class="switch"><input type="checkbox" id="useSub" checked><span class="sl"></span></div>
+          <label for="useSub">탑승일까지 구독 유지 (이미 유지 중이면 끄세요)</label>
+        </div>
+        <div id="subControl">
+          <div class="mo-control">
+            <input type="range" id="moSlider" min="1" max="36" value="3" class="range-slider">
+            <div class="mo-input-wrap">
+              <input type="number" id="moInput" value="3" min="1" max="60" class="mo-input">
+              <span class="mo-unit">개월</span>
+            </div>
+          </div>
+          <div class="mo-summary" id="moSummary">3개월 × $100 = <strong>$300</strong></div>
+        </div>
 
         <h4 class="b-t">⏰ 선지급 개월수</h4>
         <div class="ib blue" style="margin-bottom:10px">
@@ -263,11 +285,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           <button class="sb" data-pre="1" onclick="selectPre(1)"><div class="bm">1개월</div><div class="bs">60~90일</div></button>
           <button class="sb a-blue" data-pre="2" onclick="selectPre(2)"><div class="bm">2개월</div><div class="bs">30~60일</div></button>
         </div>
-
-        <div class="ib red">
-          <span class="bi">⚠️</span>
-          <div>탑승일까지 <strong>매월 구독료 유지 필수</strong>. 미납 시 선사에서 예약 취소 — 이의제기 불가.</div>
-        </div>
       </div>
 
       <!-- 리워드 -->
@@ -277,13 +294,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           <div class="switch"><input type="checkbox" id="useReward" checked><span class="sl"></span></div>
           <label for="useReward">리워드를 캐빈가에서 할인 (최대 50%)</label>
         </div>
-        <div class="row row-3">
-          <div class="field"><label>가입 리워드 (자동)</label><input type="text" id="planRwDisp" readonly style="color:var(--gold)"></div>
-          <div class="field"><label>기존 보유 리워드 (직접 입력)</label><input type="number" id="exReward" value="0" min="0" step="10" style="border-color:var(--gold)"></div>
-          <div class="field"><label>총 사용 가능 리워드</label><input type="text" id="totalRwDisp" readonly style="color:var(--gold);font-weight:700"></div>
+        <div class="row row-2">
+          <div class="field"><label>가입 시 적립 리워드 (자동)</label><input type="text" id="planRwDisp" readonly style="color:var(--gold)"></div>
+          <div class="field">
+            <label>기존 보유 리워드 (직접 입력)</label>
+            <input type="number" id="exReward" value="0" min="0" step="10" style="border-color:var(--gold)">
+          </div>
         </div>
-        <div class="row row-2" style="margin-top:4px">
-          <div class="field"><label>실제 적용 리워드 (캐빈가 50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
+        <div class="ib blue" style="margin-top:4px">
+          <span class="bi">💡</span>
+          <div>기존 보유 리워드를 입력하면 <strong>보유 리워드만</strong> 적용됩니다. 0이면 가입 리워드가 적용됩니다.</div>
+        </div>
+        <div class="row row-3" style="margin-top:8px">
+          <div class="field"><label>적용 리워드</label><input type="text" id="totalRwDisp" readonly style="color:var(--gold);font-weight:700"></div>
+          <div class="field"><label>실제 할인 (캐빈가 50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
           <div class="field"><label>잔여 리워드</label><input type="text" id="remainRw" readonly></div>
         </div>
       </div>
@@ -385,16 +409,25 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           </div>
         </li>
         <li>
-          <span class="il-icon">📱</span>
+          <span class="il-icon">🔗</span>
           <div class="il-body">
-            <h5>추천인 코드 (선택)</h5>
-            <p>기존 멤버의 추천 코드가 있으면 가입 시 입력해 주세요. 추천인과 함께 추가 혜택을 받을 수 있습니다.</p>
+            <h5>추천인 링크 (필수)</h5>
+            <p>이 멤버십은 <strong>추천인 링크를 통해서만 가입 가능</strong>한 특별한 멤버십입니다. 추천인 링크가 없으시면 아래 상담을 통해 안내받으세요.</p>
           </div>
         </li>
       </ul>
-      <div class="ib blue" style="margin-top:16px">
-        <span class="bi">💡</span>
-        <div>가입 절차가 어려우시면 상담을 통해 1:1 안내를 받으실 수 있습니다.</div>
+
+      <div style="margin-top:20px;padding:24px;background:linear-gradient(135deg,var(--gold-l),var(--accent-l));border-radius:14px;border:1.5px solid rgba(200,144,10,.15);text-align:center">
+        <p style="font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:12px">가입 상담 & 추천인 링크 받기</p>
+        <p style="font-size:.85rem;color:var(--text-dim);margin-bottom:16px;line-height:1.6">가입 절차가 궁금하시거나 추천인 링크가 필요하시면<br>아래로 편하게 연락주세요!</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="https://open.kakao.com/o/sbJudavg" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:999px;background:#FEE500;color:#3C1E1E;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            💬 카카오톡 오픈채팅 상담
+          </a>
+          <a href="tel:010-8282-4215" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:999px;background:var(--navy);color:#fff;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 2px 8px rgba(26,39,68,.2);transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            📞 010-8282-4215
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -425,17 +458,21 @@ function toggleAcc(btn){
   body.classList.toggle('show');
 }
 
-// Month grid
-function buildMo(){
-  const g=$('monthGrid');g.innerHTML='';
-  for(let m=1;m<=12;m++){
-    const b=document.createElement('button');
-    b.className='mb'+(m===mo?' active':'');b.dataset.m=m;
-    b.innerHTML=m+'개월<span class="mc">'+fU(m*sub)+'</span>';
-    b.onclick=()=>{mo=m;document.querySelectorAll('.mb').forEach(x=>x.classList.toggle('active',+x.dataset.m===m));calc()};
-    g.appendChild(b);
-  }
+// Month slider + input sync
+function syncMo(val){
+  val=Math.max(1,Math.min(60,parseInt(val)||1));
+  mo=val;
+  $('moSlider').value=Math.min(val,36); // slider caps at 36
+  $('moInput').value=val;
+  updateMoSummary();
+  calc();
 }
+function updateMoSummary(){
+  $('moSummary').innerHTML=`${mo}개월 × ${fU(sub)} = <strong>${fU(mo*sub)}</strong>`;
+}
+$('moSlider').addEventListener('input',e=>syncMo(e.target.value));
+$('moInput').addEventListener('input',e=>syncMo(e.target.value));
+$('moInput').addEventListener('change',e=>syncMo(e.target.value));
 
 function selectPlan(p){
   pl=p;
@@ -447,7 +484,7 @@ function selectPlan(p){
 function selectSub(s){
   sub=s;
   document.querySelectorAll('#subToggle .sb').forEach(b=>b.classList.toggle('a-blue',+b.dataset.sub===s));
-  buildMo();calc();
+  updateMoSummary();calc();
 }
 function selectPre(p){
   pre=p;
@@ -475,10 +512,12 @@ function calc(){
   const rU=cabin,rK=rU*rate;
   $('retailQuick').textContent=`${fU(rU)} = ${fK(rK)}`;
 
-  // Rewards
-  const pRw=P.rw,upRw=useUp?UP_R:0,tPlanRw=pRw+upRw,tRw=tPlanRw+exR;
+  // Rewards: 기존 보유 리워드 입력 시 보유만, 0이면 가입 리워드 적용
+  const pRw=P.rw,upRw=useUp?UP_R:0,tPlanRw=pRw+upRw;
+  const useExisting=exR>0;
+  const tRw=useExisting?exR:tPlanRw;
   $('planRwDisp').value=fU(tPlanRw)+(useUp?` (${fU(pRw)}+${fU(upRw)})`:'');
-  $('totalRwDisp').value=fU(tRw);
+  $('totalRwDisp').value=useExisting?`${fU(exR)} (기존 보유)`:fU(tPlanRw)+' (가입 리워드)';
 
   let applied=0;
   if(useR&&tRw>0) applied=Math.min(tRw,cabin*0.5);
@@ -488,9 +527,14 @@ function calc(){
 
   const dCabin=cabin-applied,dPP=pax>0?dCabin/pax:0;
 
+  // Subscription toggle
+  const useSub=$('useSub').checked;
+  $('subControl').style.display=useSub?'block':'none';
+
   // Costs
   const jF=P.fee,upC=useUp?UP_C:0;
-  const sMaint=mo*sub,sPre=pre*sub;
+  const sMaint=useSub?(mo*sub):0;
+  const sPre=pre*sub;
   const mU=jF+upC+sMaint+sPre+dCabin,mK=mU*rate;
 
   const save=rK-mK,pct=rK>0?(save/rK*100):0,pos=save>=0;
@@ -525,22 +569,31 @@ function calc(){
   $('bd_m_dpp').textContent=`(1인당 약 ${fU(dPP)})`;
   $('bd_m_jl').textContent=`가입비 (${pL} ${fU(jF)})`;$('bd_m_j').textContent=fU(jF);
   $('bd_m_upr').style.display=useUp?'flex':'none';if(useUp)$('bd_m_up').textContent=fU(upC);
-  $('bd_m_sl').textContent=`구독 유지 (${fU(sub)} × ${mo}개월)`;$('bd_m_s').textContent=fU(sMaint);
+  if(useSub){
+    $('bd_m_sl').textContent=`구독 유지 (${fU(sub)} × ${mo}개월)`;$('bd_m_s').textContent=fU(sMaint);
+  } else {
+    $('bd_m_sl').textContent='구독 유지';$('bd_m_s').textContent='해당 없음';
+  }
   if(pre>0){$('bd_m_pr').style.display='flex';$('bd_m_pl').textContent=`선지급 (${fU(sub)} × ${pre}개월)`;$('bd_m_p').textContent=fU(sPre)}
   else $('bd_m_pr').style.display='none';
   $('bd_m_usd').textContent=fU(mU);$('bd_m_krw').textContent=fK(mK);
 
-  // Reward BD
-  $('bd_rwpl').textContent=`가입 리워드 (${pL})`;$('bd_rwp').textContent=fU(pRw);
-  $('bd_rwur').style.display=useUp?'flex':'none';if(useUp)$('bd_rwu').textContent='+'+fU(upRw);
-  $('bd_rwer').style.display=exR>0?'flex':'none';$('bd_rwe').textContent='+'+fU(exR);
-  $('bd_rwt').textContent=fU(tRw);
+  // Reward BD — 기존 보유 입력 시 가입 리워드와 분리
+  $('bd_rwpl').textContent=`가입 리워드 (${pL})`;$('bd_rwp').textContent=fU(tPlanRw);
+  $('bd_rwur').style.display=useUp?'flex':'none';if(useUp)$('bd_rwu').textContent='포함';
+  if(useExisting){
+    $('bd_rwer').style.display='flex';$('bd_rwe').textContent=fU(exR);
+    $('bd_rwt').textContent=fU(exR)+' (기존 보유 적용)';
+  } else {
+    $('bd_rwer').style.display='none';
+    $('bd_rwt').textContent=fU(tPlanRw)+' (가입 리워드 적용)';
+  }
   $('bd_rwused').textContent=applied>0?'-'+fU(applied):'-';
   $('bd_rwrem').textContent=fU(remain);
 }
 
-document.querySelectorAll('input').forEach(el=>{el.addEventListener('input',calc);el.addEventListener('change',calc)});
-buildMo();calc();
+document.querySelectorAll('input:not(#moSlider):not(#moInput)').forEach(el=>{el.addEventListener('input',calc);el.addEventListener('change',calc)});
+updateMoSummary();calc();
 </script>
 </body>
 </html>
