@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>크루즈 비용 비교 계산기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface2:#1a2236;
+  --accent:#00c6ff;--accent2:#0072ff;
+  --gold:#f0c040;--gold-dim:#c09830;
+  --text:#e8ecf4;--text-dim:#8892a8;
+  --red:#ff4d6a;--green:#34d399;
+  --border:rgba(255,255,255,0.06);--glass:rgba(255,255,255,0.04);
+  --radius:16px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-orbs span{position:absolute;border-radius:50%;filter:blur(100px);opacity:.15;animation:float 20s ease-in-out infinite alternate}
+.bg-orbs span:nth-child(1){width:500px;height:500px;background:var(--accent2);top:-10%;left:-10%}
+.bg-orbs span:nth-child(2){width:400px;height:400px;background:var(--gold);bottom:-10%;right:-10%;animation-delay:-7s}
+.bg-orbs span:nth-child(3){width:300px;height:300px;background:var(--accent);top:50%;left:40%;animation-delay:-14s}
+@keyframes float{0%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.1)}100%{transform:translate(-20px,40px) scale(.95)}}
+
+.container{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px 16px 60px}
+
+/* Hero */
+.hero{text-align:center;padding:48px 0 36px}
+.hero-badge{display:inline-block;padding:6px 18px;border-radius:999px;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px;color:#fff}
+.hero h1{font-family:'Playfair Display','Noto Sans KR',serif;font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.2;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text-dim);margin-top:10px;font-size:.95rem;line-height:1.6}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;margin-bottom:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.card.gold::before{background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-dim))}
+.card-title{font-size:1.15rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card-title .icon{font-size:1.4rem}
+
+/* Form */
+.row{display:grid;gap:14px;margin-bottom:14px}
+.row-2{grid-template-columns:1fr 1fr}
+.row-3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:600px){.row-2,.row-3{grid-template-columns:1fr 1fr}}
+
+.field label{display:block;font-size:.78rem;font-weight:500;color:var(--text-dim);margin-bottom:6px;letter-spacing:.02em}
+.field input,.field select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:1rem;font-family:inherit;transition:border .2s;-webkit-appearance:none}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+
+/* Buttons / Toggles */
+.plan-toggle{display:flex;gap:10px;margin-bottom:18px}
+.plan-btn{flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--surface2);color:var(--text-dim);cursor:pointer;text-align:center;transition:all .25s;font-family:inherit}
+.plan-btn:hover{border-color:rgba(255,255,255,.15)}
+.plan-btn.active{border-color:var(--gold);background:rgba(240,192,64,.08);color:var(--gold)}
+.plan-btn .plan-name{font-weight:700;font-size:1rem}
+.plan-btn .plan-price{font-size:.8rem;margin-top:4px}
+.plan-btn .plan-detail{font-size:.72rem;margin-top:2px;color:var(--text-dim)}
+
+.sub-toggle{display:flex;gap:10px;margin-bottom:18px}
+.sub-btn{flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--surface2);color:var(--text-dim);cursor:pointer;text-align:center;transition:all .25s;font-family:inherit}
+.sub-btn:hover{border-color:rgba(255,255,255,.15)}
+.sub-btn.active{border-color:var(--accent);background:rgba(0,198,255,.08);color:var(--accent)}
+.sub-btn .sb-name{font-weight:700;font-size:.95rem}
+.sub-btn .sb-detail{font-size:.72rem;margin-top:2px;color:var(--text-dim)}
+
+/* Sections */
+.section-box{background:var(--glass);border-radius:12px;padding:16px 18px;margin-bottom:16px;border:1px solid var(--border)}
+.section-box h4{font-size:.85rem;font-weight:600;margin-bottom:10px}
+.section-box h4.gold-text{color:var(--gold)}
+.section-box h4.blue-text{color:var(--accent)}
+
+.toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.toggle-row label{font-size:.85rem;color:var(--text);cursor:pointer}
+.switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;inset:0;background:var(--surface2);border-radius:24px;border:1px solid var(--border);transition:.3s;cursor:pointer}
+.switch .slider::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;left:3px;top:2px;background:var(--text-dim);transition:.3s}
+.switch input:checked+.slider{background:rgba(240,192,64,.2);border-color:var(--gold)}
+.switch input:checked+.slider::before{transform:translateX(19px);background:var(--gold)}
+
+.switch.blue input:checked+.slider{background:rgba(0,198,255,.2);border-color:var(--accent)}
+.switch.blue input:checked+.slider::before{background:var(--accent)}
+
+/* Info Banner */
+.info-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;background:rgba(0,198,255,.06);border:1px solid rgba(0,198,255,.15);border-radius:10px;margin-bottom:16px;font-size:.8rem;color:var(--text-dim);line-height:1.5}
+.info-banner.gold-banner{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.15)}
+.info-banner .bi{flex-shrink:0;font-size:1.1rem;margin-top:1px}
+
+/* Result */
+.result-panel{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;margin-top:24px;position:relative;overflow:hidden}
+.result-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--accent),var(--gold))}
+.result-title{font-size:1.15rem;font-weight:700;margin-bottom:24px;text-align:center}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:500px){.compare-grid{grid-template-columns:1fr}}
+.compare-box{border-radius:14px;padding:20px 18px;text-align:center}
+.compare-box.retail{background:rgba(255,77,106,.06);border:1px solid rgba(255,77,106,.15)}
+.compare-box.member{background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2)}
+.compare-box .box-label{font-size:.78rem;font-weight:600;color:var(--text-dim);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase}
+.compare-box .box-amount{font-size:1.6rem;font-weight:900}
+.compare-box.retail .box-amount{color:var(--red)}
+.compare-box.member .box-amount{color:var(--gold)}
+.compare-box .box-sub{font-size:.78rem;color:var(--text-dim);margin-top:6px}
+
+.savings-highlight{text-align:center;padding:20px;border-radius:14px;background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(0,198,255,.08));border:1px solid rgba(52,211,153,.2)}
+.savings-highlight .save-label{font-size:.82rem;color:var(--text-dim);margin-bottom:6px}
+.savings-highlight .save-amount{font-size:2rem;font-weight:900;color:var(--green)}
+.savings-highlight .save-percent{display:inline-block;margin-top:8px;padding:4px 14px;border-radius:999px;background:rgba(52,211,153,.15);color:var(--green);font-size:.85rem;font-weight:700}
+
+/* Breakdown */
+.breakdown{margin-top:20px;padding:18px;background:var(--glass);border-radius:12px;border:1px solid var(--border)}
+.breakdown h4{font-size:.85rem;font-weight:600;color:var(--text-dim);margin-bottom:12px}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.breakdown-row:last-child{border-bottom:none}
+.breakdown-row .br-label{color:var(--text-dim)}
+.breakdown-row .br-value{font-weight:600;text-align:right}
+.breakdown-row.total{font-weight:700;font-size:1rem;padding-top:12px;margin-top:4px;border-top:1px solid rgba(255,255,255,.1);border-bottom:none}
+.breakdown-row.total .br-value{color:var(--gold)}
+
+.breakdown-row .br-value.green{color:var(--green)}
+
+/* Footer */
+.footer{text-align:center;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);font-size:.75rem;color:var(--text-dim);line-height:1.7}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card,.result-panel{animation:slideUp .5s ease-out both}
+.card:nth-child(2){animation-delay:.1s}
+.card:nth-child(3){animation-delay:.15s}
+.result-panel{animation-delay:.2s}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-badge">Cruise Membership</div>
+    <h1>크루즈 비용 비교 계산기</h1>
+    <p>소매가 vs 크루즈 멤버십 구독 플랫폼 — 얼마나 절약되는지 직접 확인하세요</p>
+  </div>
+
+  <!-- ━━ 기본 정보 ━━ -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🚢</span> 크루즈 기본 정보</div>
+    <div class="row row-3">
+      <div class="field">
+        <label>캐빈 가격 (USD) — 방 전체</label>
+        <input type="number" id="cabinUsd" value="3000" min="0" step="50">
+      </div>
+      <div class="field">
+        <label>캐빈 인원 (2인실, 3인실 등)</label>
+        <input type="number" id="pax" value="2" min="1" max="10">
+      </div>
+      <div class="field">
+        <label>적용 환율 (₩/$)</label>
+        <input type="number" id="rate" value="1450" min="100" step="1">
+      </div>
+    </div>
+    <div class="row row-2">
+      <div class="field">
+        <label>탑승일</label>
+        <input type="date" id="boardDate">
+      </div>
+      <div class="field">
+        <label>탑승일까지</label>
+        <input type="text" id="daysLeft" readonly value="-" style="color:var(--accent)">
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━ 멤버십 설정 ━━ -->
+  <div class="card gold">
+    <div class="card-title"><span class="icon">👑</span> 멤버십 설정</div>
+
+    <!-- 가입 플랜 -->
+    <div class="section-box">
+      <h4 class="gold-text">🏷️ 가입 플랜</h4>
+      <div class="plan-toggle" id="planToggle">
+        <button class="plan-btn active" data-plan="classic" onclick="selectPlan('classic')">
+          <div class="plan-name">클래식</div>
+          <div class="plan-price">가입비 $200</div>
+          <div class="plan-detail">활성화비 $100 포함 → 리워드 $350</div>
+        </button>
+        <button class="plan-btn" data-plan="premium" onclick="selectPlan('premium')">
+          <div class="plan-name">프리미엄</div>
+          <div class="plan-price">가입비 $500</div>
+          <div class="plan-detail">활성화비 $250 포함 → 리워드 $800</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- 업그레이드 -->
+    <div class="section-box">
+      <h4 class="gold-text">⬆️ 프리미엄 업그레이드</h4>
+      <div class="toggle-row">
+        <div class="switch">
+          <input type="checkbox" id="useUpgrade" onchange="calc()">
+          <span class="slider"></span>
+        </div>
+        <label for="useUpgrade">클래식 → 프리미엄 업그레이드 ($500 추가 납부, +$750 리워드)</label>
+      </div>
+      <div class="info-banner gold-banner" id="upgradeInfo" style="display:none">
+        <span class="bi">✨</span>
+        <div>클래식 $200 + 업그레이드 $500 = <strong>총 $700 납부</strong><br>리워드: $350 + $750 = <strong>총 $1,100 리워드</strong></div>
+      </div>
+    </div>
+
+    <!-- 월 구독료 -->
+    <div class="section-box">
+      <h4 class="blue-text">💳 월 구독료</h4>
+      <div class="sub-toggle" id="subToggle">
+        <button class="sub-btn active" data-sub="100" onclick="selectSub(100)">
+          <div class="sb-name">$100 / 월</div>
+          <div class="sb-detail">클래식 유지</div>
+        </button>
+        <button class="sub-btn" data-sub="250" onclick="selectSub(250)">
+          <div class="sb-name">$250 / 월</div>
+          <div class="sb-detail">프리미엄 유지</div>
+        </button>
+      </div>
+      <div class="info-banner">
+        <span class="bi">💡</span>
+        <div>
+          <strong>선지급 조건:</strong> 30~60일 전 예약 → 2개월 선지급 | 60~90일 전 → 1개월 | 90일+ → 추가 선지급 없음<br>
+          <strong>+ 탑승일까지 매월 구독료 유지 필수</strong> (남은 개월수만큼 합산)
+        </div>
+      </div>
+      <div class="row row-2">
+        <div class="field">
+          <label>탑승까지 구독 유지 개월수</label>
+          <input type="text" id="subMonths" readonly style="color:var(--accent)">
+        </div>
+        <div class="field">
+          <label>선지급 개월수</label>
+          <input type="text" id="preMonths" readonly style="color:var(--accent)">
+        </div>
+      </div>
+    </div>
+
+    <!-- 리워드 할인 -->
+    <div class="section-box">
+      <h4 class="gold-text">🎁 리워드 할인</h4>
+      <div class="toggle-row">
+        <div class="switch">
+          <input type="checkbox" id="useReward" checked onchange="calc()">
+          <span class="slider"></span>
+        </div>
+        <label for="useReward">보유 리워드를 캐빈가에서 할인 (최대 50%)</label>
+      </div>
+      <div class="row row-2">
+        <div class="field">
+          <label>보유 리워드 (USD)</label>
+          <input type="number" id="rewardBalance" value="350" min="0" step="10">
+        </div>
+        <div class="field">
+          <label>실제 적용 리워드</label>
+          <input type="text" id="appliedReward" readonly style="color:var(--gold)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━ 결과 ━━ -->
+  <div class="result-panel" id="resultPanel">
+    <div class="result-title">📊 비용 비교 결과</div>
+
+    <div class="compare-grid">
+      <div class="compare-box retail">
+        <div class="box-label">소매가 예약</div>
+        <div class="box-amount" id="retailTotal">-</div>
+        <div class="box-sub" id="retailSub"></div>
+      </div>
+      <div class="compare-box member">
+        <div class="box-label">멤버십 예약</div>
+        <div class="box-amount" id="memberTotal">-</div>
+        <div class="box-sub" id="memberSub"></div>
+      </div>
+    </div>
+
+    <div class="savings-highlight" id="savingsBox">
+      <div class="save-label">예상 절약 금액</div>
+      <div class="save-amount" id="saveAmount">-</div>
+      <div class="save-percent" id="savePercent">-</div>
+    </div>
+
+    <!-- 소매가 Breakdown -->
+    <div class="breakdown">
+      <h4>💳 소매가 상세</h4>
+      <div class="breakdown-row"><span class="br-label">캐빈 가격 (방 전체)</span><span class="br-value" id="bd_r_cabin">-</span></div>
+      <div class="breakdown-row"><span class="br-label">인원</span><span class="br-value" id="bd_r_pax">-</span></div>
+      <div class="breakdown-row"><span class="br-label">USD 합계</span><span class="br-value" id="bd_r_usd">-</span></div>
+      <div class="breakdown-row total"><span class="br-label">원화 합계</span><span class="br-value" id="bd_r_krw">-</span></div>
+    </div>
+
+    <!-- 멤버십 Breakdown -->
+    <div class="breakdown" style="margin-top:12px">
+      <h4>👑 멤버십 상세</h4>
+      <div class="breakdown-row"><span class="br-label">캐빈 가격 (방 전체)</span><span class="br-value" id="bd_m_cabin">-</span></div>
+      <div class="breakdown-row"><span class="br-label">리워드 할인</span><span class="br-value green" id="bd_m_reward">-</span></div>
+      <div class="breakdown-row"><span class="br-label">할인 후 캐빈 가격</span><span class="br-value" id="bd_m_discCabin">-</span></div>
+      <div class="breakdown-row" style="border-bottom:1px solid rgba(255,255,255,.1)"><span class="br-label">&nbsp;</span><span class="br-value" style="font-size:.75rem;color:var(--text-dim)" id="bd_m_discPP">-</span></div>
+      <div class="breakdown-row"><span class="br-label" id="bd_m_join_label">가입비 (클래식 $200)</span><span class="br-value" id="bd_m_join">-</span></div>
+      <div class="breakdown-row" id="bd_m_upgrade_row" style="display:none"><span class="br-label">업그레이드 비용</span><span class="br-value" id="bd_m_upgrade">-</span></div>
+      <div class="breakdown-row"><span class="br-label" id="bd_m_sub_label">월 구독료 × 개월수</span><span class="br-value" id="bd_m_sub">-</span></div>
+      <div class="breakdown-row" id="bd_m_pre_row"><span class="br-label" id="bd_m_pre_label">선지급 구독료</span><span class="br-value" id="bd_m_pre">-</span></div>
+      <div class="breakdown-row"><span class="br-label">USD 합계</span><span class="br-value" id="bd_m_usd">-</span></div>
+      <div class="breakdown-row total"><span class="br-label">원화 합계</span><span class="br-value" id="bd_m_krw">-</span></div>
+    </div>
+
+    <!-- 리워드 요약 -->
+    <div class="breakdown" style="margin-top:12px">
+      <h4>🎁 리워드 요약</h4>
+      <div class="breakdown-row"><span class="br-label" id="bd_rw_plan_label">가입 리워드 (클래식)</span><span class="br-value" id="bd_rw_plan">-</span></div>
+      <div class="breakdown-row" id="bd_rw_upgrade_row" style="display:none"><span class="br-label">업그레이드 리워드</span><span class="br-value" id="bd_rw_upgrade">-</span></div>
+      <div class="breakdown-row total"><span class="br-label">총 보유 리워드</span><span class="br-value" id="bd_rw_total">-</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ※ 본 계산기는 예상 비용을 참고용으로 제공합니다. 실제 금액은 예약 시점, 환율, 프로모션에 따라 달라질 수 있습니다.<br>
+    © 2026 벨라의 크루즈 멤버십 가이드
+  </div>
+
+</div>
+
+<script>
+const PLANS = {
+  classic:  { joinFee: 200, activation: 100, reward: 350 },
+  premium:  { joinFee: 500, activation: 250, reward: 800 }
+};
+const UPGRADE_COST = 500;
+const UPGRADE_REWARD = 750;
+
+let currentPlan = 'classic';
+let monthlySub = 100;
+
+// Default board date ~70 days
+const dd = new Date(); dd.setDate(dd.getDate()+70);
+document.getElementById('boardDate').value = dd.toISOString().split('T')[0];
+
+function selectPlan(plan){
+  currentPlan = plan;
+  document.querySelectorAll('#planToggle .plan-btn').forEach(b=>b.classList.toggle('active',b.dataset.plan===plan));
+  // If premium selected, disable upgrade toggle
+  if(plan==='premium'){
+    document.getElementById('useUpgrade').checked=false;
+    document.getElementById('useUpgrade').disabled=true;
+  } else {
+    document.getElementById('useUpgrade').disabled=false;
+  }
+  updateRewardDefault();
+  calc();
+}
+
+function selectSub(amount){
+  monthlySub = amount;
+  document.querySelectorAll('#subToggle .sub-btn').forEach(b=>b.classList.toggle('active', parseInt(b.dataset.sub)===amount));
+  calc();
+}
+
+function updateRewardDefault(){
+  const plan = PLANS[currentPlan];
+  const upgrade = document.getElementById('useUpgrade').checked;
+  let totalReward = plan.reward;
+  if(upgrade) totalReward += UPGRADE_REWARD;
+  document.getElementById('rewardBalance').value = totalReward;
+}
+
+function getDaysLeft(){
+  const bd = document.getElementById('boardDate').value;
+  if(!bd) return null;
+  return Math.ceil((new Date(bd)-new Date())/(1000*60*60*24));
+}
+
+function getMonthsUntilBoard(){
+  const bd = document.getElementById('boardDate').value;
+  if(!bd) return 0;
+  const now = new Date();
+  const board = new Date(bd);
+  let months = (board.getFullYear()-now.getFullYear())*12 + (board.getMonth()-now.getMonth());
+  // If board day hasn't passed in current month calculation, it's still the same month
+  if(board.getDate() < now.getDate()) months--;
+  return Math.max(0, months);
+}
+
+function getPrePayMonths(days){
+  if(days===null||days<0) return 0;
+  if(days<=60) return 2; // 30~60일 (30일 이하도 2개월)
+  if(days<=90) return 1;
+  return 0;
+}
+
+function fmt(n){return Math.round(n).toLocaleString('ko-KR')}
+function fmtUsd(n){return '$'+Math.round(n).toLocaleString('en-US')}
+function fmtKrw(n){return '₩'+fmt(n)}
+
+function calc(){
+  const cabinUsd = parseFloat(document.getElementById('cabinUsd').value)||0;
+  const pax = parseInt(document.getElementById('pax').value)||1;
+  const rate = parseFloat(document.getElementById('rate').value)||1450;
+  const useReward = document.getElementById('useReward').checked;
+  const rewardBal = parseFloat(document.getElementById('rewardBalance').value)||0;
+  const useUpgrade = document.getElementById('useUpgrade').checked;
+  const plan = PLANS[currentPlan];
+  const days = getDaysLeft();
+  const totalMonths = getMonthsUntilBoard();
+  const preMonths = getPrePayMonths(days);
+
+  // Days display
+  const daysEl = document.getElementById('daysLeft');
+  daysEl.value = days!==null ? (days>=0 ? `D-${days}일 (약 ${totalMonths}개월)` : '이미 지남') : '-';
+  document.getElementById('subMonths').value = `${totalMonths}개월 × ${fmtUsd(monthlySub)} = ${fmtUsd(totalMonths*monthlySub)}`;
+  document.getElementById('preMonths').value = `${preMonths}개월 × ${fmtUsd(monthlySub)} = ${fmtUsd(preMonths*monthlySub)}`;
+
+  // Upgrade info
+  document.getElementById('upgradeInfo').style.display = useUpgrade ? 'flex' : 'none';
+
+  // ── Retail ──
+  const retailUsd = cabinUsd; // cabin price = total (방 전체)
+  const retailKrw = retailUsd * rate;
+
+  // ── Membership ──
+  // Reward calc
+  let planReward = plan.reward;
+  let upgradeReward = 0;
+  if(useUpgrade && currentPlan==='classic'){
+    upgradeReward = UPGRADE_REWARD;
+  }
+  const totalRewardAvailable = planReward + upgradeReward;
+
+  let appliedReward = 0;
+  if(useReward && rewardBal > 0){
+    const maxDiscount = cabinUsd * 0.5; // 50% cap on cabin price
+    appliedReward = Math.min(rewardBal, maxDiscount);
+  }
+  document.getElementById('appliedReward').value = fmtUsd(appliedReward);
+
+  const discountedCabin = cabinUsd - appliedReward;
+  const discountedPP = pax > 0 ? discountedCabin / pax : 0;
+
+  // Costs
+  const joinFee = plan.joinFee;
+  const upgradeCost = (useUpgrade && currentPlan==='classic') ? UPGRADE_COST : 0;
+  const subCost = totalMonths * monthlySub; // monthly subscription until boarding
+  const prePay = preMonths * monthlySub; // prepay (additional, on top of monthly)
+
+  const memberUsd = joinFee + upgradeCost + subCost + prePay + discountedCabin;
+  const memberKrw = memberUsd * rate;
+
+  // Savings
+  const saveKrw = retailKrw - memberKrw;
+  const savePct = retailKrw > 0 ? (saveKrw/retailKrw*100) : 0;
+
+  // ── Render ──
+  document.getElementById('retailTotal').textContent = fmtKrw(retailKrw);
+  document.getElementById('retailSub').textContent = fmtUsd(retailUsd);
+  document.getElementById('memberTotal').textContent = fmtKrw(memberKrw);
+  document.getElementById('memberSub').textContent = fmtUsd(memberUsd);
+
+  const savEl = document.getElementById('saveAmount');
+  const savPel = document.getElementById('savePercent');
+  const savBox = document.getElementById('savingsBox');
+
+  if(saveKrw >= 0){
+    savEl.textContent = fmtKrw(saveKrw);
+    savEl.style.color = 'var(--green)';
+    savPel.textContent = `${savePct.toFixed(1)}% 절약`;
+    savPel.style.background = 'rgba(52,211,153,.15)';
+    savPel.style.color = 'var(--green)';
+    savBox.style.borderColor = 'rgba(52,211,153,.2)';
+    savBox.style.background = 'linear-gradient(135deg,rgba(52,211,153,.08),rgba(0,198,255,.08))';
+  } else {
+    savEl.textContent = '+' + fmtKrw(Math.abs(saveKrw));
+    savEl.style.color = 'var(--red)';
+    savPel.textContent = `${Math.abs(savePct).toFixed(1)}% 추가 비용`;
+    savPel.style.background = 'rgba(255,77,106,.15)';
+    savPel.style.color = 'var(--red)';
+    savBox.style.borderColor = 'rgba(255,77,106,.2)';
+    savBox.style.background = 'linear-gradient(135deg,rgba(255,77,106,.08),rgba(255,77,106,.04))';
+  }
+
+  // Retail breakdown
+  document.getElementById('bd_r_cabin').textContent = fmtUsd(cabinUsd);
+  document.getElementById('bd_r_pax').textContent = pax+'인실';
+  document.getElementById('bd_r_usd').textContent = fmtUsd(retailUsd);
+  document.getElementById('bd_r_krw').textContent = fmtKrw(retailKrw);
+
+  // Member breakdown
+  document.getElementById('bd_m_cabin').textContent = fmtUsd(cabinUsd);
+  document.getElementById('bd_m_reward').textContent = appliedReward > 0 ? '-'+fmtUsd(appliedReward) : '-';
+  document.getElementById('bd_m_discCabin').textContent = fmtUsd(discountedCabin);
+  document.getElementById('bd_m_discPP').textContent = `(1인당 ${fmtUsd(discountedPP)})`;
+
+  const planLabel = currentPlan==='classic' ? '클래식' : '프리미엄';
+  document.getElementById('bd_m_join_label').textContent = `가입비 (${planLabel} ${fmtUsd(joinFee)})`;
+  document.getElementById('bd_m_join').textContent = fmtUsd(joinFee);
+
+  const upRow = document.getElementById('bd_m_upgrade_row');
+  if(useUpgrade && currentPlan==='classic'){
+    upRow.style.display = 'flex';
+    document.getElementById('bd_m_upgrade').textContent = fmtUsd(upgradeCost);
+  } else {
+    upRow.style.display = 'none';
+  }
+
+  document.getElementById('bd_m_sub_label').textContent = `월 구독료 (${fmtUsd(monthlySub)} × ${totalMonths}개월)`;
+  document.getElementById('bd_m_sub').textContent = fmtUsd(subCost);
+
+  document.getElementById('bd_m_pre_label').textContent = `선지급 구독료 (${preMonths}개월 추가)`;
+  document.getElementById('bd_m_pre').textContent = fmtUsd(prePay);
+  document.getElementById('bd_m_pre_row').style.display = preMonths > 0 ? 'flex' : 'none';
+
+  document.getElementById('bd_m_usd').textContent = fmtUsd(memberUsd);
+  document.getElementById('bd_m_krw').textContent = fmtKrw(memberKrw);
+
+  // Reward summary
+  document.getElementById('bd_rw_plan_label').textContent = `가입 리워드 (${planLabel})`;
+  document.getElementById('bd_rw_plan').textContent = fmtUsd(planReward);
+
+  const rwUpRow = document.getElementById('bd_rw_upgrade_row');
+  if(useUpgrade && currentPlan==='classic'){
+    rwUpRow.style.display = 'flex';
+    document.getElementById('bd_rw_upgrade').textContent = '+'+fmtUsd(upgradeReward);
+  } else {
+    rwUpRow.style.display = 'none';
+  }
+  document.getElementById('bd_rw_total').textContent = fmtUsd(totalRewardAvailable);
+}
+
+// Listeners
+document.querySelectorAll('input').forEach(el=>{
+  el.addEventListener('input',()=>{
+    // Auto-update reward when upgrade toggled
+    if(el.id==='useUpgrade') updateRewardDefault();
+    calc();
+  });
+  el.addEventListener('change',()=>{
+    if(el.id==='useUpgrade') updateRewardDefault();
+    calc();
+  });
+});
+
+calc();
+</script>
+</body>
+</html>
