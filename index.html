@@ -196,6 +196,60 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .bnf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 @media(max-width:400px){.bnf-grid{grid-template-columns:1fr}}
 .bnf-card{text-align:center;padding:14px;background:#fff;border-radius:12px;border:1px solid var(--border)}
+
+/* Payment method radio */
+.pay-radio{display:flex;align-items:flex-start;gap:12px;width:100%;padding:14px 14px;
+  background:var(--surface2);border:2px solid var(--border-h);border-radius:12px;
+  cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;
+  -webkit-tap-highlight-color:transparent}
+.pay-radio:active{transform:scale(.98)}
+.pay-radio.active{border-color:var(--accent);background:var(--accent-l);box-shadow:0 2px 8px rgba(0,116,200,.1)}
+.pay-radio .pr-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  background:var(--bg2);color:var(--text-dim);display:flex;align-items:center;
+  justify-content:center;font-weight:900;font-size:.82rem;transition:all .2s}
+.pay-radio.active .pr-num{background:var(--accent);color:#fff}
+.pay-radio .pr-body{flex:1;min-width:0}
+.pay-radio .pr-title{font-weight:700;font-size:.92rem;color:var(--navy);margin-bottom:3px}
+.pay-radio .pr-desc{font-size:.74rem;color:var(--text-dim);line-height:1.5}
+
+/* Simulation box */
+.sim-box{background:linear-gradient(135deg,var(--accent-l),var(--gold-l));
+  border:1.5px solid rgba(0,116,200,.15);border-radius:14px;padding:18px;margin-bottom:14px}
+.sim-box h4{font-size:.92rem;color:var(--navy);margin-bottom:6px;text-align:center}
+.sim-box .sim-sub{font-size:.74rem;color:var(--text-dim);text-align:center;margin-bottom:14px}
+.sim-card{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border)}
+.sim-card.highlight{border-color:var(--gold);box-shadow:0 2px 8px rgba(200,144,10,.12)}
+.sim-card .sc-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.85rem;color:var(--navy);margin-bottom:6px}
+.sim-card .sc-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;flex-shrink:0}
+.sim-card .sc-body{font-size:.78rem;line-height:1.7;color:var(--text)}
+.sim-card .sc-note{margin-top:6px;padding:6px 10px;background:var(--gold-l);border-radius:8px;
+  font-size:.72rem;color:var(--navy);line-height:1.5}
+.sim-card .sc-warn{margin-top:6px;padding:6px 10px;background:var(--red-l);border-radius:8px;
+  font-size:.72rem;color:var(--red);line-height:1.5}
+.sim-card strong.hl{color:var(--red);font-weight:900}
+.sim-card strong.gn{color:var(--green);font-weight:900}
+
+/* 1-year value box */
+.yr-box{background:var(--surface);border:1.5px solid var(--gold);border-radius:14px;
+  padding:16px;margin-bottom:14px}
+.yr-box-h{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.yr-box-h h4{font-size:.92rem;color:var(--navy);margin:0}
+.yr-box-h .yr-arrow{transition:transform .3s}
+.yr-box.open .yr-box-h .yr-arrow{transform:rotate(180deg)}
+.yr-box-body{display:none;margin-top:14px}
+.yr-box.open .yr-box-body{display:block}
+.yr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.yr-grid{grid-template-columns:1fr}}
+.yr-card{background:var(--gold-l);border:1px solid rgba(200,144,10,.2);border-radius:10px;padding:12px}
+.yr-card h5{font-size:.85rem;color:var(--gold);margin-bottom:8px;text-align:center;font-weight:800}
+.yr-card .yr-row{display:flex;justify-content:space-between;font-size:.74rem;padding:4px 0;border-bottom:1px dashed rgba(200,144,10,.2)}
+.yr-card .yr-row:last-of-type{border:none}
+.yr-card .yr-row .l{color:var(--text-dim)}
+.yr-card .yr-row .v{font-weight:700;color:var(--navy)}
+.yr-card .yr-total{margin-top:8px;padding-top:8px;border-top:1.5px solid var(--gold);text-align:center;font-size:.78rem;color:var(--navy)}
+.yr-card .yr-total strong{color:var(--gold);font-size:.95rem}
 </style>
 </head>
 <body>
@@ -298,12 +352,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <!-- 공통 정보 -->
       <div class="sbox">
         <h4 style="color:var(--navy)">📋 공통 정보</h4>
-        <div class="row row-3">
+        <div class="row row-2">
           <div class="field"><label>캐빈 인원</label><input type="number" id="pax" value="2" min="1" max="10"></div>
           <div class="field"><label>환율 (₩/$)</label><input type="number" id="rate" value="1450" min="100" step="1"></div>
-          <div class="field"><label>탑승일</label><input type="date" id="boardDate"></div>
         </div>
-        <div class="field" style="margin-top:4px"><label>D-Day</label><input type="text" id="daysLeft" readonly style="color:var(--accent);font-weight:600"></div>
+        <div class="row row-2">
+          <div class="field"><label>탑승일</label><input type="date" id="boardDate"></div>
+          <div class="field"><label>D-Day</label><input type="text" id="daysLeft" readonly style="color:var(--accent);font-weight:600"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -409,27 +465,38 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div class="mo-summary" id="preSummary"></div>
       </div>
 
-      <!-- 인사이더 -->
+      <!-- 결제 방식 선택 (3개 중 1개) -->
       <div class="sbox">
-        <h4 style="color:var(--accent)">🏆 인사이더 프라이싱</h4>
-        <div class="toggle-row">
-          <label class="switch"><input type="checkbox" id="useInsider" checked onchange="calc()"><span class="sl"></span></label>
-          <label for="useInsider" style="cursor:pointer;font-size:.82rem">17% 할인 적용 (리워드 차감 없음)</label>
+        <h4 style="color:var(--accent)">💳 결제 방식 선택 <span style="font-weight:400;color:var(--text-dim);font-size:.72rem">(1개만 선택)</span></h4>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px" id="payMethodRadios">
+          <button type="button" class="pay-radio active" data-method="insider" onclick="selectPayMethod('insider')">
+            <div class="pr-num">①</div>
+            <div class="pr-body">
+              <div class="pr-title">인사이더 17% 할인</div>
+              <div class="pr-desc">캐빈가 17% 즉시 할인 + 카드 결제 (리워드 사용 X)</div>
+            </div>
+          </button>
+          <button type="button" class="pay-radio" data-method="reward_card" onclick="selectPayMethod('reward_card')">
+            <div class="pr-num">②</div>
+            <div class="pr-body">
+              <div class="pr-title">리워드 할인 + 카드</div>
+              <div class="pr-desc">리워드로 캐빈가 최대 50% 차감 + 나머지 카드</div>
+            </div>
+          </button>
+          <button type="button" class="pay-radio" data-method="all_reward" onclick="selectPayMethod('all_reward')">
+            <div class="pr-num">③</div>
+            <div class="pr-body">
+              <div class="pr-title">올 리워드 결제</div>
+              <div class="pr-desc">STEP1: 리워드 50% 차감 + STEP2: 나머지 (2RP=$1)</div>
+            </div>
+          </button>
         </div>
-        <div class="ib blue"><span class="bi">💡</span><div>멤버십 회원이면 <strong>리워드 차감 없이</strong> 기본 할인. 리워드와 <strong>중복 적용</strong> 가능.</div></div>
-        <div class="row row-2">
-          <div class="field"><label>할인율</label><input type="text" id="insiderRate" readonly value="17%"  style="color:var(--accent);font-weight:700"></div>
-          <div class="field"><label>할인 금액</label><input type="text" id="insiderAmt" readonly style="color:var(--green);font-weight:700"></div>
-        </div>
+        <div class="ib blue" id="payMethodNote" style="margin-bottom:0"><span class="bi">💡</span><div id="payMethodNoteText"></div></div>
       </div>
 
-      <!-- STEP 1 리워드 -->
-      <div class="sbox">
-        <h4 class="g-t">🎁 STEP 1 — 리워드 차감 (1RP = $1)</h4>
-        <div class="toggle-row">
-          <label class="switch"><input type="checkbox" id="useReward" checked onchange="calc()"><span class="sl"></span></label>
-          <label for="useReward" style="cursor:pointer;font-size:.82rem">리워드 캐빈가 차감 (최대 50%)</label>
-        </div>
+      <!-- 리워드 정보 (옵션 ② ③ 선택 시만 표시) -->
+      <div class="sbox" id="rewardInfoBox">
+        <h4 class="g-t">🎁 리워드 정보</h4>
         <div class="btn-row" id="rwSourceToggle">
           <button class="sb a-gold" data-rws="plan" ontouchstart="" onclick="selectRwSource('plan')"><div class="bm">가입 적립</div><div class="bs">신규 가입 시</div></button>
           <button class="sb" data-rws="existing" ontouchstart="" onclick="selectRwSource('existing')"><div class="bm">My 리워드</div><div class="bs">이미 보유 중</div></button>
@@ -448,28 +515,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           <div class="ib gold"><span class="bi">💡</span><div>이전 구독으로 적립된 리워드가 있다면 입력해 주세요.</div></div>
         </div>
         <div class="row row-2" style="margin-top:8px">
-          <div class="field"><label>적용 리워드</label><input type="text" id="totalRwDisp" readonly style="color:var(--gold);font-weight:700"></div>
           <div class="field"><label>STEP1 할인 (50% 한도)</label><input type="text" id="appliedRw" readonly style="color:var(--green);font-weight:700"></div>
+          <div class="field"><label>잔여 리워드</label><input type="text" id="remainRw" readonly style="font-weight:600"></div>
         </div>
-        <div class="field" style="margin-top:6px"><label>잔여 리워드</label><input type="text" id="remainRw" readonly style="font-weight:600"></div>
         <div class="ib green" style="margin-top:8px" id="remainNote"><span class="bi">✈️</span><div>남은 리워드는 <strong>다음 여행 때 할인 받아 사용하실 수 있습니다.</strong></div></div>
-      </div>
-
-      <!-- STEP 2 -->
-      <div class="sbox">
-        <h4 style="color:var(--accent)">💎 STEP 2 — 나머지 결제</h4>
-        <div class="ib blue" style="margin-bottom:10px"><span class="bi">💡</span><div>STEP1 후 남은 금액을 <strong>올 리워드 (2RP=$1)</strong> 또는 <strong>카드</strong>로 결제.</div></div>
-        <div class="btn-row" id="payToggle">
-          <button class="sb" data-pay="reward" ontouchstart="" onclick="selectPay('reward')"><div class="bm">💎 올 리워드</div><div class="bs">2RP = $1</div></button>
-          <button class="sb a-blue" data-pay="card" ontouchstart="" onclick="selectPay('card')"><div class="bm">💳 카드</div><div class="bs">남은 금액 카드</div></button>
-        </div>
-        <div style="background:var(--bg2);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
-          <div class="dr"><span class="l">STEP1 후 남은 금액</span><span class="v" id="s2_remain_cabin">-</span></div>
-          <div class="dr" id="s2_rp_row" style="display:none"><span class="l">리워드 결제 (2RP=$1)</span><span class="v" id="s2_rp_used" style="color:var(--gold);font-weight:700">-</span></div>
-          <div class="dr" id="s2_card_row"><span class="l">카드 결제</span><span class="v" id="s2_card" style="color:var(--accent);font-weight:700">-</span></div>
-          <div class="dr" id="s2_rp_short" style="display:none"><span class="l" style="color:var(--red)">⚠️ 리워드 부족</span><span class="v" id="s2_card_extra" style="color:var(--red);font-weight:700">-</span></div>
-          <div class="dr" id="s2_rp_remain_row" style="display:none"><span class="l">최종 잔여 RP</span><span class="v" id="s2_rp_remain">-</span></div>
-        </div>
       </div>
     </div>
   </div>
@@ -495,99 +544,165 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div class="svp" id="savePercent">-</div>
       </div>
 
-      <!-- 혜택 배너 -->
-      <div id="benefitBanner" style="display:none;border-radius:16px;overflow:hidden;border:1.5px solid rgba(200,144,10,.2);margin-bottom:14px">
-        <div style="background:linear-gradient(135deg,#1a2744,#2c4a7c);padding:24px 20px;text-align:center;color:#fff;position:relative;overflow:hidden">
+      <!-- 예상 구독 기간 시뮬레이션 -->
+      <div id="subSimBox" style="border-radius:16px;overflow:hidden;border:1.5px solid rgba(200,144,10,.2);margin-bottom:14px">
+        <div style="background:linear-gradient(135deg,#1a2744,#2c4a7c);padding:22px 20px;text-align:center;color:#fff;position:relative;overflow:hidden">
           <div style="position:absolute;inset:0;opacity:.1;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🚢</text></svg>') center/80px repeat"></div>
           <div style="position:relative">
             <div style="font-size:.7rem;letter-spacing:.1em;opacity:.7;margin-bottom:6px">YOUR NEXT VOYAGE AWAITS</div>
-            <div style="font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:3px">꿈꾸던 세계여행의 시작</div>
-            <div style="font-size:.8rem;opacity:.8">매년 떠나는 나만의 럭셔리 크루즈 라이프</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:3px">꿈꾸던 세계여행의 시작</div>
+            <div style="font-size:.78rem;opacity:.8">예상 구독 기간만큼 리워드가 쌓입니다</div>
           </div>
         </div>
-        <div style="background:var(--gold-l);padding:18px 16px">
+        <div style="background:var(--gold-l);padding:16px 14px">
+          <!-- 플랜 선택 -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:.74rem;color:var(--text-dim);font-weight:600;margin-bottom:6px">📋 플랜 선택</div>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="ss-plan" data-ssp="classic" onclick="selectSimPlan('classic')" style="flex:1;padding:10px 6px;border-radius:10px;border:2px solid var(--border-h);background:#fff;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent">
+                <div style="font-weight:700;font-size:.82rem">클래식</div>
+                <div style="font-size:.68rem;color:var(--text-dim)">$100/월</div>
+              </button>
+              <button type="button" class="ss-plan active" data-ssp="premium" onclick="selectSimPlan('premium')" style="flex:1;padding:10px 6px;border-radius:10px;border:2px solid var(--gold);background:#fff;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent">
+                <div style="font-weight:700;font-size:.82rem;color:var(--gold)">프리미엄</div>
+                <div style="font-size:.68rem;color:var(--gold)">$250/월</div>
+              </button>
+            </div>
+          </div>
+          <!-- 개월 수 입력 -->
+          <div style="margin-bottom:14px">
+            <div style="font-size:.74rem;color:var(--text-dim);font-weight:600;margin-bottom:6px">📅 예상 구독 기간 (다음 여행까지)</div>
+            <div style="display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--gold);border-radius:10px;padding:8px 12px">
+              <button type="button" onclick="stepSimMo(-1)" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--gold-l);color:var(--gold);font-size:1.2rem;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent">−</button>
+              <input type="number" id="simMoInput" value="3" min="1" max="36" style="flex:1;border:none;background:transparent;font-size:1.1rem;font-weight:800;color:var(--gold);text-align:center;font-family:inherit;-webkit-appearance:none;-moz-appearance:textfield">
+              <button type="button" onclick="stepSimMo(1)" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--gold-l);color:var(--gold);font-size:1.2rem;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent">+</button>
+              <span style="font-size:.85rem;font-weight:700;color:var(--gold);padding-right:4px">개월</span>
+            </div>
+          </div>
+
+          <!-- 결과 카드 2개 (낸 비용 vs 받은 혜택) -->
           <div class="bnf-grid">
             <div class="bnf-card">
               <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:3px">💰 내가 낸 비용</div>
-              <div style="font-size:1.15rem;font-weight:900;color:var(--navy)" id="bnf_paid">-</div>
-              <div style="font-size:.72rem;color:var(--text-dim)" id="bnf_paid_krw">-</div>
+              <div style="font-size:1.15rem;font-weight:900;color:var(--navy)" id="ss_paid">-</div>
+              <div style="font-size:.7rem;color:var(--text-dim)" id="ss_paid_krw">-</div>
+              <div style="font-size:.65rem;color:var(--text-light);margin-top:3px" id="ss_paid_calc">-</div>
             </div>
-            <div class="bnf-card" style="border-color:rgba(26,138,92,.2)">
-              <div style="font-size:.7rem;color:var(--green);font-weight:600;margin-bottom:3px">🎁 받은 혜택</div>
-              <div style="font-size:1.15rem;font-weight:900;color:var(--green)" id="bnf_benefit">-</div>
-              <div style="font-size:.72rem;color:var(--green)" id="bnf_benefit_krw">-</div>
+            <div class="bnf-card" style="border-color:rgba(26,138,92,.25);background:linear-gradient(135deg,#fff,var(--green-l))">
+              <div style="font-size:.7rem;color:var(--green);font-weight:600;margin-bottom:3px">🎁 받은 리워드</div>
+              <div style="font-size:1.15rem;font-weight:900;color:var(--green)" id="ss_reward">-</div>
+              <div style="font-size:.7rem;color:var(--green)" id="ss_reward_krw">-</div>
+              <div style="font-size:.65rem;color:var(--text-light);margin-top:3px" id="ss_reward_calc">-</div>
             </div>
           </div>
-          <div id="bnf_nextTrip" style="text-align:center;padding:14px;background:linear-gradient(135deg,#fff,var(--green-l));border-radius:12px;border:1.5px solid rgba(26,138,92,.15)">
-            <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:4px">🎁 다음 여행 사용 가능 리워드</div>
-            <div style="font-size:1.3rem;font-weight:900;color:var(--green)" id="bnf_nextRw">-</div>
-            <div style="font-size:.8rem;color:var(--text-dim);margin-top:2px" id="bnf_nextKrw">-</div>
-            <div style="font-size:.78rem;color:var(--navy);margin-top:8px;line-height:1.5">다음 크루즈 여행 시 <strong>이만큼 할인</strong> 받고 떠나세요!<br><span style="color:var(--gold)">✨ 1회성이 아닌, 매년 떠나는 여행자의 특권</span></div>
+
+          <!-- 비교형 임팩트 박스 -->
+          <div style="margin-top:12px;padding:14px;background:linear-gradient(135deg,#fff,var(--green-l));border-radius:12px;border:1.5px solid rgba(26,138,92,.2);text-align:center">
+            <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:4px">✨ 가치 비교</div>
+            <div style="font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.5;margin-bottom:6px">
+              <span id="ss_paid_inline">-</span> 내고
+              <span style="color:var(--green);font-weight:900" id="ss_received_inline">-</span> 받음
+            </div>
+            <div style="font-size:1.4rem;font-weight:900;color:var(--gold);margin-bottom:4px" id="ss_ratio">-</div>
+            <div style="font-size:.74rem;color:var(--navy);line-height:1.5">
+              <span id="ss_message">-</span><br>
+              <span style="color:var(--gold)">✨ 1회성이 아닌, 매년 떠나는 여행자의 특권</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 멤버십 상세 -->
-      <div class="bd">
-        <h4>👑 멤버십 상세 — 내가 내는 돈 vs 받는 혜택</h4>
-        <div style="background:var(--red-l);border-radius:10px;padding:12px 14px;margin-bottom:10px">
-          <div style="font-size:.75rem;color:var(--red);font-weight:600;margin-bottom:6px">💰 내가 내는 돈</div>
-          <div class="dr"><span class="l">멤버십 기준 캐빈가</span><span class="v" id="bd_m_cabin">-</span></div>
-          <div class="dr" id="bd_m_insider_r" style="display:none"><span class="l">🏆 인사이더 -17%</span><span class="v grn" id="bd_m_insider">-</span></div>
-          <div class="dr" id="bd_m_afterins_r" style="display:none"><span class="l">→ 적용 후</span><span class="v" id="bd_m_afterins">-</span></div>
-          <div class="dr"><span class="l">리워드 할인</span><span class="v grn" id="bd_m_rw">-</span></div>
-          <div class="dr"><span class="l">→ 캐빈 결제액</span><span class="v" id="bd_m_disc">-</span></div>
-          <div class="dr"><span class="l">&nbsp;</span><span class="v dim" id="bd_m_dpp">-</span></div>
-          <div class="dr" id="bd_m_upr" style="display:none"><span class="l">업그레이드</span><span class="v" id="bd_m_up">-</span></div>
-          <div class="dr"><span class="l" id="bd_m_sl">구독 유지</span><span class="v" id="bd_m_s">-</span></div>
-          <div class="dr" id="bd_m_pr"><span class="l" id="bd_m_pl">선지급</span><span class="v" id="bd_m_p">-</span></div>
-          <div class="dr t"><span class="l">총 비용</span><span class="v" id="bd_m_usd" style="color:var(--red)">-</span></div>
-          <div class="dr" style="border:none"><span class="l"></span><span class="v dim" id="bd_m_krw">-</span></div>
+      <!-- 최대 할인 시뮬레이션 -->
+      <div class="sim-box">
+        <h4>🔥 최대 할인 시뮬레이션</h4>
+        <div class="sim-sub" id="simSub">$3,000 캐빈 기준 — 결제 방식별 최대 혜택</div>
+
+        <div class="sim-card">
+          <div class="sc-title"><span class="sc-num">①</span>인사이더 17% 할인</div>
+          <div class="sc-body">
+            할인 금액: <strong class="gn" id="sim1_disc">-$510</strong><br>
+            카드 결제: <strong id="sim1_card">$2,490</strong>
+          </div>
         </div>
-        <div style="background:var(--green-l);border-radius:10px;padding:12px 14px">
-          <div style="font-size:.75rem;color:var(--green);font-weight:600;margin-bottom:6px">🎁 받는 혜택</div>
-          <div class="dr" id="bd_bnf_insider_r" style="display:none"><span class="l">인사이더 할인</span><span class="v grn" id="bd_bnf_insider">-</span></div>
-          <div class="dr"><span class="l">리워드 할인 (이번 여행)</span><span class="v grn" id="bd_bnf_rw">-</span></div>
-          <div class="dr"><span class="l">✈️ 잔여 리워드 (다음 여행)</span><span class="v" id="bd_bnf_next" style="color:var(--accent);font-weight:700">-</span></div>
-          <div class="dr t"><span class="l">총 혜택</span><span class="v" id="bd_bnf_total" style="color:var(--green)">-</span></div>
-          <div class="dr" style="border:none"><span class="l"></span><span class="v dim" id="bd_bnf_total_krw">-</span></div>
+
+        <div class="sim-card">
+          <div class="sc-title"><span class="sc-num">②</span>리워드 할인 + 카드</div>
+          <div class="sc-body">
+            리워드 차감: <strong class="gn" id="sim2_rw">1,500 RP (-$1,500)</strong><br>
+            카드 결제: <strong id="sim2_card">$1,500</strong>
+          </div>
+          <div class="sc-note">
+            💡 크루즈는 <strong>2인 1실</strong>이라 카드 결제 분은 동행자 몫!<br>
+            → <strong class="hl">실제 내 결제금 $0</strong> (구독료만 내면 크루즈 한 번 가는 셈)
+          </div>
+        </div>
+
+        <div class="sim-card highlight">
+          <div class="sc-title"><span class="sc-num">③</span>올 리워드 결제</div>
+          <div class="sc-body">
+            STEP1 리워드: <strong class="gn" id="sim3_s1">1,500 RP (-$1,500)</strong><br>
+            STEP2 리워드: <strong class="gn" id="sim3_s2">3,000 RP (-$1,500)</strong><br>
+            총 사용 RP: <strong id="sim3_total">4,500 RP</strong> · 카드 결제: <strong style="color:var(--green)">$0</strong>
+          </div>
+          <div class="sc-warn">
+            ⚠️ 올 리워드 결제는 <strong>탑승 270일 이후 상품</strong>부터 적용 가능합니다
+          </div>
+        </div>
+      </div>
+
+      <!-- 1년 멤버십 가치 분석 -->
+      <div class="yr-box" id="yrBox">
+        <div class="yr-box-h" onclick="toggleYrBox()">
+          <h4>📊 1년 멤버십 가치 분석</h4>
+          <svg class="yr-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="yr-box-body">
+          <div style="font-size:.78rem;color:var(--text-dim);margin-bottom:12px;line-height:1.6;text-align:center">
+            구독료를 1년 유지하면 얼마의 리워드가 쌓일까요?<br>
+            <span style="color:var(--gold);font-weight:600">매달 2배 리워드 적립 = 다음 여행 할인권</span>
+          </div>
+          <div class="yr-grid">
+            <div class="yr-card">
+              <h5>✨ 클래식</h5>
+              <div class="yr-row"><span class="l">1년 납부금</span><span class="v">$1,200</span></div>
+              <div class="yr-row"><span class="l">월 200 RP × 12개월</span><span class="v">2,400 RP</span></div>
+              <div class="yr-row"><span class="l">달러 환산</span><span class="v">$2,400</span></div>
+              <div class="yr-total">
+                💎 다음 여행 할인 가치<br>
+                <strong>약 ₩348만원</strong>
+              </div>
+            </div>
+            <div class="yr-card" style="background:linear-gradient(135deg,var(--gold-l),#fff)">
+              <h5>✨ 프리미엄</h5>
+              <div class="yr-row"><span class="l">1년 납부금</span><span class="v">$3,000</span></div>
+              <div class="yr-row"><span class="l">월 500 RP × 12개월</span><span class="v">6,000 RP</span></div>
+              <div class="yr-row"><span class="l">달러 환산</span><span class="v">$6,000</span></div>
+              <div class="yr-total">
+                💎 다음 여행 할인 가치<br>
+                <strong>약 ₩870만원</strong>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:12px 14px;background:var(--green-l);border-radius:10px;font-size:.78rem;color:var(--navy);line-height:1.6;text-align:center">
+            🎯 <strong>매년 크루즈 한 번씩 떠나도 리워드는 계속 쌓입니다.</strong><br>
+            <span style="color:var(--gold)">"1회성이 아닌, 평생 적립 시스템" — 매년 떠나는 여행자의 특권</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 4. 가입 안내 -->
-  <div class="accordion">
-    <button class="acc-trigger" onclick="toggleAcc(this)">
-      <div class="acc-left"><span class="acc-num n4">4</span><span class="acc-title">가입 시 필요 서류 안내</span></div>
-      <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </button>
-    <div class="acc-body">
-      <ul class="info-list">
-        <li><span class="il-icon">🛂</span><div class="il-body"><h5>여권</h5><p>유효기간 탑승일 기준 6개월 이상. 여권 영문명 기준 예약.</p></div></li>
-        <li><span class="il-icon">💳</span><div class="il-body"><h5>해외결제 가능 신용카드</h5><p>Visa/Mastercard 등. 가입비 및 월 구독료 USD 자동 결제.</p></div></li>
-        <li><span class="il-icon">🔐</span><div class="il-body"><h5>본인인증</h5><p>이메일 인증 및 본인 확인. 정확한 개인정보 입력 필요.</p></div></li>
-        <li><span class="il-icon">🔗</span><div class="il-body"><h5>추천인 링크 (필수)</h5><p><strong>추천인 링크를 통해서만 가입 가능</strong>한 특별한 멤버십입니다. 아래 상담으로 안내받으세요.</p></div></li>
-      </ul>
-      <div style="margin-top:18px;padding:20px;background:linear-gradient(135deg,var(--gold-l),var(--accent-l));border-radius:14px;border:1.5px solid rgba(200,144,10,.15);text-align:center">
-        <p style="font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:10px">가입 상담 & 추천인 링크 받기</p>
-        <p style="font-size:.82rem;color:var(--text-dim);margin-bottom:14px;line-height:1.6">가입이 궁금하시거나 추천인 링크가 필요하시면<br>편하게 연락주세요!</p>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-          <a href="https://open.kakao.com/o/sbJudavg" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border-radius:999px;background:#FEE500;color:#3C1E1E;font-weight:700;font-size:.85rem;text-decoration:none;-webkit-tap-highlight-color:transparent">💬 카카오톡 상담</a>
-          <a href="tel:010-8282-4215" style="display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border-radius:999px;background:var(--navy);color:#fff;font-weight:700;font-size:.85rem;text-decoration:none;-webkit-tap-highlight-color:transparent">📞 010-8282-4215</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">※ 참고용 계산기입니다. 실제 금액은 예약 시점·환율·프로모션에 따라 달라질 수 있습니다.<br>© 2026 벨라의 크루즈 멤버십 가이드</div>
+  <div class="footer">※ 참고용 계산기입니다. 실제 금액은 예약 시점·환율·프로모션에 따라 달라질 수 있습니다.<br>© 2026 크루즈 멤버십 가이드</div>
 </div>
 
 <script>
 const PLANS={starter:{fee:50,rw:50},classic:{fee:200,rw:350},premium:{fee:500,rw:800}};
 const UP_C=500,UP_R=750;
-let pl='classic',sub=100,mo=3,pre=0,payMethod='card',rwSource='plan',upgradeOn=false;
+let pl='classic',sub=100,mo=3,pre=0,upgradeOn=false;
+let payMethod='insider';  // 'insider' | 'reward_card' | 'all_reward'
+let rwSource='plan';
 let agencyCur='KRW',memberCur='USD',agencyBasis='cabin';
+let simPlan='premium',simMo=3;  // 예상 구독 기간 시뮬레이션
 
 const $=id=>document.getElementById(id);
 const fU=n=>'$'+Math.round(n).toLocaleString('en-US');
@@ -598,6 +713,7 @@ const d0=new Date();d0.setDate(d0.getDate()+70);
 $('boardDate').value=d0.toISOString().split('T')[0];
 
 function toggleAcc(btn){btn.classList.toggle('open');btn.nextElementSibling.classList.toggle('show')}
+function toggleYrBox(){$('yrBox').classList.toggle('open')}
 
 // Currency toggles
 function selectAgencyCur(c){
@@ -635,7 +751,7 @@ function selectMemberCur(c){
   calc();
 }
 
-// Month
+// Month slider
 function syncMo(val,fromSlider){
   if(val===''||val===undefined||val===null){if(!fromSlider)$('moInput').value='';mo=0;updateMoSummary();calc();return}
   val=Math.max(0,Math.min(60,parseInt(val)||0));mo=val;
@@ -673,33 +789,113 @@ function selectPlan(p){
 }
 function selectSub(s){sub=s;document.querySelectorAll('#subToggle .sb').forEach(b=>b.classList.toggle('a-blue',+b.dataset.sub===s));updateMoSummary();calc()}
 function selectPre(p){pre=p;document.querySelectorAll('#preToggle .sb').forEach(b=>b.classList.toggle('a-blue',+b.dataset.pre===p));calc()}
-function selectPay(m){payMethod=m;document.querySelectorAll('#payToggle .sb').forEach(b=>b.classList.toggle('a-blue',b.dataset.pay===m));calc()}
+
+// 결제 방식 선택 (3택 1)
+function selectPayMethod(m){
+  payMethod=m;
+  document.querySelectorAll('#payMethodRadios .pay-radio').forEach(b=>b.classList.toggle('active',b.dataset.method===m));
+  // 리워드 정보 박스: 옵션 ②③ 일 때만 표시
+  $('rewardInfoBox').style.display=(m==='insider')?'none':'block';
+  // 안내 문구
+  const notes={
+    insider:'캐빈가에서 17%만 할인. 리워드는 사용하지 않고 그대로 적립됩니다.',
+    reward_card:'리워드로 캐빈가의 50%까지 차감. <strong>나머지 카드 결제분은 동행자(2인 1실) 몫!</strong>',
+    all_reward:'STEP1: 50% 리워드 차감(1RP=$1) + STEP2: 나머지 리워드 결제(2RP=$1). <strong>탑승 270일 이후 상품부터 적용 가능</strong>'
+  };
+  $('payMethodNoteText').innerHTML=notes[m];
+  calc();
+}
+
 function selectRwSource(s){rwSource=s;document.querySelectorAll('#rwSourceToggle .sb').forEach(b=>b.classList.toggle('a-gold',b.dataset.rws===s));
   $('rwPlanBox').style.display=s==='plan'?'block':'none';$('rwExBox').style.display=s==='existing'?'block':'none';calc()}
+
+// 예상 구독 기간 시뮬레이션
+function selectSimPlan(p){
+  simPlan=p;
+  document.querySelectorAll('.ss-plan').forEach(b=>{
+    const isActive=b.dataset.ssp===p;
+    b.classList.toggle('active',isActive);
+    b.style.borderColor=isActive?'var(--gold)':'var(--border-h)';
+    const t=b.querySelector('div:first-child'),s=b.querySelector('div:last-child');
+    if(t)t.style.color=isActive?'var(--gold)':'var(--navy)';
+    if(s)s.style.color=isActive?'var(--gold)':'var(--text-dim)';
+  });
+  calcSubSim();
+}
+function stepSimMo(d){
+  let v=parseInt($('simMoInput').value)||1;
+  v=Math.max(1,Math.min(36,v+d));
+  $('simMoInput').value=v;simMo=v;calcSubSim();
+}
+$('simMoInput').addEventListener('input',e=>{
+  let v=parseInt(e.target.value)||1;
+  v=Math.max(1,Math.min(36,v));
+  simMo=v;calcSubSim();
+});
+
+function calcSubSim(){
+  const rate=+$('rate').value||1450;
+  const mo=parseInt($('simMoInput').value)||1;
+  // 클래식: 활성화비 $100 + $100/월 / 프리미엄: 활성화비 $250 + $250/월
+  const monthly=simPlan==='premium'?250:100;
+  const activation=monthly;  // 활성화비 = 월 구독료 동일
+  const planLabel=simPlan==='premium'?'프리미엄':'클래식';
+
+  // 내가 낸 비용 = 활성화비 + (월 구독료 × 개월수)
+  const totalPaid=activation+monthly*mo;
+
+  // 받은 리워드:
+  // 첫 달 = 활성화비×1 + 월구독료×2 + 무료 50RP
+  // 2달째 이후 = 월 구독료 × 2
+  const firstMonthRw=activation*1+monthly*2+50;
+  const otherMonthsRw=monthly*2*(mo-1);  // 2달부터 누적
+  const totalRw=firstMonthRw+otherMonthsRw;
+
+  $('ss_paid').textContent=fU(totalPaid);
+  $('ss_paid_krw').textContent=fK(totalPaid*rate);
+  $('ss_paid_calc').textContent=`활성화비 ${fU(activation)} + ${fU(monthly)}/월 × ${mo}개월 (${planLabel})`;
+
+  $('ss_reward').textContent=totalRw.toLocaleString()+' RP';
+  $('ss_reward_krw').textContent=`≈ ${fK(totalRw*rate)}`;
+  $('ss_reward_calc').textContent=`첫달 ${firstMonthRw}RP (활성화+2배+무료50) + ${monthly*2}RP × ${mo-1}개월`;
+
+  $('ss_paid_inline').textContent=fU(totalPaid);
+  $('ss_received_inline').textContent=`${totalRw.toLocaleString()} RP (≈${fU(totalRw)})`;
+  // 비율 계산: 받은 RP의 가치 / 낸 돈 = X배
+  const ratio=(totalRw/totalPaid).toFixed(1);
+  $('ss_ratio').textContent=`= ${ratio}배 가치 환원`;
+  // 메시지: 1500 RP 이상이면 캐빈 50% 할인 가능 멘트
+  let msg='';
+  if(totalRw>=1500){
+    const cabinMax=totalRw*2;
+    msg=`💎 <strong style="color:var(--green)">${fU(cabinMax)} 캐빈에서 50% 할인 가능!</strong>`;
+  } else {
+    msg=`적립된 리워드는 다음 크루즈 여행 시 <strong>50% 할인 한도</strong>로 사용 가능`;
+  }
+  $('ss_message').innerHTML=msg;
+}
 
 function calc(){
   const rate=+$('rate').value||1450,pax=+$('pax').value||1;
 
-  // Agency price — KRW input is in 만원 units, USD in dollars
+  // Agency price
   const agencyRaw=+$('agencyPrice').value||0;
-  let agencyBaseKRW;
-  if(agencyCur==='KRW')agencyBaseKRW=agencyRaw*10000;
-  else agencyBaseKRW=agencyRaw*rate;
+  let agencyBaseKRW=agencyCur==='KRW'?agencyRaw*10000:agencyRaw*rate;
   const agencyKRW=agencyBasis==='pp'?agencyBaseKRW*pax:agencyBaseKRW;
   const agencyUSD=agencyKRW/rate;
   if(agencyCur==='KRW'){
     $('agencyConverted').value=agencyBasis==='pp'?`${fM(agencyKRW)} · ${fU(agencyUSD)}`:fU(agencyUSD);
   }else{
-    $('agencyConverted').value=agencyBasis==='pp'?`${fM(agencyKRW)}`:fM(agencyKRW);
+    $('agencyConverted').value=fM(agencyKRW);
   }
 
-  // Member cabin price — USD or 만원
+  // Member cabin price
   const cabinRaw=+$('cabinUsd').value||0;
   const cabin=memberCur==='USD'?cabinRaw:cabinRaw*10000/rate;
   const cabinKRW=memberCur==='KRW'?cabinRaw*10000:cabinRaw*rate;
   $('cabinConverted').value=memberCur==='USD'?fM(cabinKRW):fU(cabin);
 
-  const useR=$('useReward').checked,useUp=upgradeOn&&pl==='classic',P=PLANS[pl];
+  const useUp=upgradeOn&&pl==='classic',P=PLANS[pl];
 
   // D-day
   const bd=$('boardDate').value;
@@ -708,49 +904,61 @@ function calc(){
 
   $('upgradeInfo').style.display=useUp?'block':'none';
 
-  // Insider
-  const useIns=$('useInsider').checked;
-  const insD=useIns?Math.round(cabin*.17):0,afterIns=cabin-insD;
-  $('insiderAmt').value=useIns?('-'+fU(insD)):'-';
-
-  // Rewards
+  // Reward source
   const pRw=P.rw,upRw=useUp?UP_R:0,tPlanRw=pRw+upRw;
   const planRwM=+$('planRwInput').value||0,exR=+$('exReward').value||0;
   $('planRwAuto').value=fU(tPlanRw)+(useUp?' (업그레이드 포함)':'');
   let tRw=rwSource==='plan'?planRwM:exR;
-  $('totalRwDisp').value=rwSource==='plan'?`${fU(tRw)} (가입)`:`${fU(tRw)} (My)`;
 
-  let applied=0;
-  if(useR&&tRw>0)applied=Math.min(tRw,afterIns*.5);
-  const remain=Math.max(0,tRw-applied);
-  $('appliedRw').value=fU(applied);
-  $('remainRw').value=`${fU(remain)} (${Math.round(remain)} RP)`;
-  $('remainNote').style.display=remain>0?'flex':'none';
+  // ============================================
+  // 결제 방식별 계산 (3가지 중 1가지만)
+  // ============================================
+  let insD=0;       // 인사이더 할인 금액
+  let s1Rw=0;       // STEP1 리워드 차감 금액
+  let s2RpUsed=0;   // STEP2 사용 RP
+  let s2CardExtra=0;// STEP2 리워드 부족 시 추가 카드
+  let cardPay=0;    // 최종 카드 결제 금액
+  let finalRw=tRw;  // 잔여 리워드
 
-  // STEP2
-  const remainCabin=afterIns-applied;
-  let s2Rp=0,s2Card=0,s2Extra=0,finalRw=remain;
-  if(payMethod==='reward'){
-    const need=remainCabin*2;
-    if(remain>=need){s2Rp=need;finalRw=remain-need}
-    else{s2Rp=remain;s2Extra=remainCabin-Math.floor(remain/2);finalRw=remain%2}
-  }else{s2Card=remainCabin;finalRw=remain}
-
-  $('s2_remain_cabin').textContent=fU(remainCabin);
-  if(payMethod==='reward'){
-    $('s2_rp_row').style.display='flex';$('s2_rp_used').textContent=Math.round(s2Rp).toLocaleString()+' RP';
-    $('s2_card_row').style.display='none';
-    $('s2_rp_short').style.display=s2Extra>0?'flex':'none';$('s2_card_extra').textContent=fU(s2Extra);
-    $('s2_rp_remain_row').style.display='flex';$('s2_rp_remain').textContent=Math.round(finalRw)+' RP';
-  }else{
-    $('s2_rp_row').style.display='none';$('s2_rp_short').style.display='none';$('s2_rp_remain_row').style.display='none';
-    $('s2_card_row').style.display='flex';$('s2_card').textContent=fU(s2Card);
+  if(payMethod==='insider'){
+    // ① 인사이더 17% 할인 + 카드
+    insD=Math.round(cabin*.17);
+    cardPay=cabin-insD;
+    finalRw=tRw;  // 리워드 안 씀
+  } else if(payMethod==='reward_card'){
+    // ② 리워드 50% 차감 + 카드
+    const max50=cabin*.5;
+    s1Rw=Math.min(tRw,max50);
+    cardPay=cabin-s1Rw;
+    finalRw=Math.max(0,tRw-s1Rw);
+  } else {
+    // ③ 올 리워드: STEP1 50% (1RP=$1) + STEP2 나머지 (2RP=$1)
+    const max50=cabin*.5;
+    s1Rw=Math.min(tRw,max50);
+    const remainCabin=cabin-s1Rw;
+    let availableRpAfterS1=tRw-s1Rw;
+    const need=remainCabin*2;  // STEP2: 2RP=$1
+    if(availableRpAfterS1>=need){
+      s2RpUsed=need;
+      finalRw=availableRpAfterS1-need;
+      cardPay=0;
+    } else {
+      s2RpUsed=availableRpAfterS1;
+      const covered=Math.floor(availableRpAfterS1/2);
+      s2CardExtra=remainCabin-covered;
+      cardPay=s2CardExtra;
+      finalRw=availableRpAfterS1%2;
+    }
   }
 
-  const cardPay=payMethod==='reward'?s2Extra:s2Card;
+  // 리워드 정보 표시
+  $('appliedRw').value=fU(s1Rw);
+  $('remainRw').value=`${fU(finalRw)} (${Math.round(finalRw)} RP)`;
+  $('remainNote').style.display=finalRw>0?'flex':'none';
+
+  // 멤버십 비용
   const useSub=$('useSub').checked;
   $('subControl').style.display=useSub?'block':'none';
-
   const jF=P.fee,upC=useUp?UP_C:0,sMaint=useSub?mo*sub:0,sPre=pre*sub;
   $('pre0amt').textContent='$0';$('pre1amt').textContent=fU(sub);$('pre2amt').textContent=fU(sub*2);
   $('preSummary').innerHTML=pre>0?`선지급 ${pre}개월 × ${fU(sub)} = <strong>${fU(sPre)}</strong>`:'선지급 없음';
@@ -758,6 +966,7 @@ function calc(){
   const mCore=upC+sPre+cardPay,mU=mCore+sMaint,mK=mU*rate;
   const save=agencyKRW-mK,pct=agencyKRW>0?save/agencyKRW*100:0,pos=save>=0;
 
+  // 비교 박스
   $('retailTotal').textContent=fM(agencyKRW);
   const basisLabel=agencyBasis==='pp'?` · ${pax}인 기준`:'';
   $('retailSub').textContent=`${fK(agencyKRW)} · 항공료 제외${basisLabel}`;
@@ -766,6 +975,7 @@ function calc(){
   if(sMaint>0){msd.innerHTML=`가입+캐빈+선지급: ${fU(mCore)} (${fK(mCore*rate)})<br>구독 유지 ${mo}개월: +${fU(sMaint)}`;msd.style.display='block'}
   else msd.style.display='none';
 
+  // 절약 박스
   const sA=$('saveAmount'),sP=$('savePercent'),sB=$('savingsBox');
   sA.textContent=pos?fM(save):'+'+fM(-save);sA.style.color=pos?'var(--green)':'var(--red)';
   sP.textContent=pos?pct.toFixed(1)+'% 절약':Math.abs(pct).toFixed(1)+'% 추가';
@@ -773,41 +983,35 @@ function calc(){
   sB.style.borderColor=pos?'rgba(26,138,92,.15)':'rgba(192,57,43,.15)';
   sB.style.background=pos?'linear-gradient(135deg,var(--green-l),var(--accent-l))':'var(--red-l)';
 
-  // Benefit - 여행사 대비 총 혜택
-  const totalBnf=Math.max(0,agencyUSD-mU)+finalRw;
-  $('benefitBanner').style.display='block';
-  $('bnf_paid').textContent=fU(mU);$('bnf_paid_krw').textContent=fK(mK);
-  $('bnf_benefit').textContent=fU(totalBnf);$('bnf_benefit_krw').textContent=fK(totalBnf*rate);
-  $('bnf_nextRw').textContent=fU(finalRw)+' ('+Math.round(finalRw)+' RP)';
-  $('bnf_nextKrw').textContent='한화 약 '+fK(finalRw*rate);
-  $('bnf_nextTrip').style.display=finalRw>0?'block':'none';
+  // 예상 구독 기간 시뮬레이션
+  calcSubSim();
 
-  // Member BD
-  const pL=pl==='classic'?'클래식':pl==='starter'?'스타터':'프리미엄';
-  $('bd_m_cabin').textContent=fU(cabin);
-  $('bd_m_insider_r').style.display=useIns?'flex':'none';$('bd_m_insider').textContent='-'+fU(insD);
-  $('bd_m_afterins_r').style.display=useIns?'flex':'none';$('bd_m_afterins').textContent=fU(afterIns);
-  $('bd_m_rw').textContent=applied>0?'-'+fU(applied):'-';
-  $('bd_m_disc').textContent=fU(cardPay)+(payMethod==='reward'&&s2Rp>0?' (카드분)':' (카드)');
-  $('bd_m_dpp').textContent=payMethod==='reward'&&s2Rp>0?`(올 리워드 ${Math.round(s2Rp)} RP)`:`(1인당 약 ${fU(pax>0?(afterIns-applied)/pax:0)})`;
-  $('bd_m_upr').style.display=useUp?'flex':'none';if(useUp)$('bd_m_up').textContent=fU(upC);
-  if(useSub){$('bd_m_sl').textContent=`구독 (${fU(sub)}×${mo}개월)`;$('bd_m_s').textContent=fU(sMaint)}
-  else{$('bd_m_sl').textContent='구독 유지';$('bd_m_s').textContent='해당 없음'}
-  if(pre>0){$('bd_m_pr').style.display='flex';$('bd_m_pl').textContent=`선지급 (${fU(sub)}×${pre}개월)`;$('bd_m_p').textContent=fU(sPre)}
-  else $('bd_m_pr').style.display='none';
-  $('bd_m_usd').textContent=fU(mU);$('bd_m_krw').textContent=fK(mK);
-
-  // Benefit BD
-  const agencyDiff=Math.max(0,agencyUSD-mU);
-  $('bd_bnf_insider_r').style.display=useIns?'flex':'none';
-  $('bd_bnf_insider').textContent=fU(insD)+' ('+fK(insD*rate)+')';
-  $('bd_bnf_rw').textContent=fU(applied)+' ('+fK(applied*rate)+')';
-  $('bd_bnf_next').textContent=fU(finalRw)+' ('+fK(finalRw*rate)+')';
-  $('bd_bnf_total').textContent=fU(totalBnf);$('bd_bnf_total_krw').textContent=fK(totalBnf*rate);
+  // ============================================
+  // 최대 할인 시뮬레이션 ($3,000 캐빈 기준)
+  // ============================================
+  const simCabin=cabin;
+  $('simSub').textContent=`${fU(simCabin)} 캐빈 기준 — 결제 방식별 최대 혜택`;
+  // 옵션 ①
+  const simInsD=Math.round(simCabin*.17);
+  $('sim1_disc').textContent='-'+fU(simInsD);
+  $('sim1_card').textContent=fU(simCabin-simInsD);
+  // 옵션 ②
+  const simRw50=Math.round(simCabin*.5);
+  $('sim2_rw').textContent=`${simRw50.toLocaleString()} RP (-${fU(simRw50)})`;
+  $('sim2_card').textContent=fU(simCabin-simRw50);
+  // 옵션 ③
+  const sim3S1=Math.round(simCabin*.5);
+  const sim3S2RP=Math.round((simCabin-sim3S1)*2);
+  $('sim3_s1').textContent=`${sim3S1.toLocaleString()} RP (-${fU(sim3S1)})`;
+  $('sim3_s2').textContent=`${sim3S2RP.toLocaleString()} RP (-${fU(simCabin-sim3S1)})`;
+  $('sim3_total').textContent=`${(sim3S1+sim3S2RP).toLocaleString()} RP`;
 }
 
-document.querySelectorAll('input:not(#moSlider):not(#moInput)').forEach(el=>{el.addEventListener('input',calc);el.addEventListener('change',calc)});
-updateMoSummary();updatePlanRw();calc();
+document.querySelectorAll('input:not(#moSlider):not(#moInput):not(#simMoInput)').forEach(el=>{el.addEventListener('input',calc);el.addEventListener('change',calc)});
+updateMoSummary();updatePlanRw();
+selectPayMethod('reward_card');  // 기본값 ② 리워드 + 카드
+calc();
+calcSubSim();
 </script>
 </body>
 </html>
