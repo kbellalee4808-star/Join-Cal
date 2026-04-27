@@ -318,7 +318,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
         <div class="ib red" style="margin-top:4px"><span class="bi">💡</span><div>
           <strong>팁 1:</strong> 여행사는 보통 <strong>1인 기준</strong> 가격을 표시해요 → "1인 기준" 선택<br>
-          <strong>팁 2:</strong> <strong>항공료는 제외</strong>하고 입력해야 순수 크루즈 비용만 비교돼요 (보통 지중해 150만원 | 아시아 40-50만원 /인)
+          <strong>팁 2:</strong> <strong>항공료는 제외</strong>하고 입력해야 순수 크루즈 비용만 비교돼요 (지중해 150-200만원 | 아시아 50-100만원 /인)
         </div></div>
       </div>
 
@@ -354,7 +354,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <h4 style="color:var(--navy)">📋 공통 정보</h4>
         <div class="row row-2">
           <div class="field"><label>캐빈 인원</label><input type="number" id="pax" value="2" min="1" max="10"></div>
-          <div class="field"><label>환율 (₩/$)</label><input type="number" id="rate" value="1450" min="100" step="1"></div>
+          <div class="field"><label>환율 (₩/$)</label><input type="number" id="rate" value="1500" min="100" step="1"></div>
         </div>
         <div class="row row-2">
           <div class="field"><label>탑승일</label><input type="date" id="boardDate"></div>
@@ -374,11 +374,23 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
       <!-- 가입 플랜 -->
       <div class="sbox">
-        <h4 class="g-t">🏷️ 가입 플랜 (첫달 가입비)</h4>
+        <h4 class="g-t">🏷️ 가입 플랜</h4>
         <div class="btn-row" id="planToggle">
-          <button class="sb" data-plan="starter" ontouchstart="" onclick="selectPlan('starter')"><div class="bm">스타터</div><div class="bs"><span style="color:var(--red);font-size:.9rem;font-weight:900">$50</span> → 50 리워드</div></button>
-          <button class="sb a-gold" data-plan="classic" ontouchstart="" onclick="selectPlan('classic')"><div class="bm">클래식</div><div class="bs"><span style="color:var(--red);font-size:.9rem;font-weight:900">$200</span> → 350 리워드</div></button>
-          <button class="sb" data-plan="premium" ontouchstart="" onclick="selectPlan('premium')"><div class="bm">프리미엄</div><div class="bs"><span style="color:var(--red);font-size:.9rem;font-weight:900">$500</span> → 800 리워드</div></button>
+          <button class="sb" data-plan="starter" ontouchstart="" onclick="selectPlan('starter')">
+            <div class="bm">스타터</div>
+            <div class="bs" style="margin-top:4px"><span style="font-size:.66rem;color:var(--text-dim)">첫달 구독료</span> <span style="color:var(--red);font-size:.95rem;font-weight:900">$50</span></div>
+            <div class="bs" style="font-size:.7rem;color:var(--gold);font-weight:600;margin-top:2px">50 리워드 적립</div>
+          </button>
+          <button class="sb a-gold" data-plan="classic" ontouchstart="" onclick="selectPlan('classic')">
+            <div class="bm">클래식</div>
+            <div class="bs" style="margin-top:4px"><span style="font-size:.66rem;color:var(--text-dim)">첫달 구독료</span> <span style="color:var(--red);font-size:.95rem;font-weight:900">$200</span></div>
+            <div class="bs" style="font-size:.7rem;color:var(--gold);font-weight:600;margin-top:2px">350 리워드 적립</div>
+          </button>
+          <button class="sb" data-plan="premium" ontouchstart="" onclick="selectPlan('premium')">
+            <div class="bm">프리미엄</div>
+            <div class="bs" style="margin-top:4px"><span style="font-size:.66rem;color:var(--text-dim)">첫달 구독료</span> <span style="color:var(--red);font-size:.95rem;font-weight:900">$500</span></div>
+            <div class="bs" style="font-size:.7rem;color:var(--gold);font-weight:600;margin-top:2px">800 리워드 적립</div>
+          </button>
         </div>
         <div class="ib blue" id="starterInfo" style="display:none"><span class="bi">💡</span><div>스타터는 2배 적립 없이 <strong>$50만 적립</strong>. 인사이더 프라이싱 이용 가능.</div></div>
         <div id="planBreakdown" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -709,15 +721,23 @@ const fU=n=>'$'+Math.round(n).toLocaleString('en-US');
 const fK=n=>'₩'+Math.round(n).toLocaleString('ko-KR');
 const fM=n=>Math.round(n/10000).toLocaleString('ko-KR')+'만원';
 
-const d0=new Date();d0.setDate(d0.getDate()+70);
-$('boardDate').value=d0.toISOString().split('T')[0];
+// 탑승일 기본값: 오늘 + 90일 (한국 시간 기준, 항상 페이지 로드 시 자동 갱신)
+function setDefaultBoardDate(){
+  const d=new Date();
+  d.setDate(d.getDate()+90);
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  $('boardDate').value=`${y}-${m}-${day}`;
+}
+setDefaultBoardDate();
 
 function toggleAcc(btn){btn.classList.toggle('open');btn.nextElementSibling.classList.toggle('show')}
 function toggleYrBox(){$('yrBox').classList.toggle('open')}
 
 // Currency toggles
 function selectAgencyCur(c){
-  const oldCur=agencyCur,cur=+$('agencyPrice').value||0,rate=+$('rate').value||1450;
+  const oldCur=agencyCur,cur=+$('agencyPrice').value||0,rate=+$('rate').value||1500;
   let krw;
   if(oldCur==='KRW')krw=cur*10000;
   else krw=cur*rate;
@@ -745,7 +765,7 @@ function selectMemberCur(c){
   document.querySelectorAll('#memberCurToggle button').forEach(b=>b.classList.toggle('active',b.dataset.cur===c));
   $('cabinPriceLabel').textContent=c==='USD'?'멤버십 기준 캐빈가 (USD)':'멤버십 기준 캐빈가 (만원)';
   $('cabinUnit').textContent=c==='USD'?'$':'만원';
-  const cur=+$('cabinUsd').value||0,rate=+$('rate').value||1450;
+  const cur=+$('cabinUsd').value||0,rate=+$('rate').value||1500;
   if(c==='USD'){$('cabinUsd').step='50';if(cur>10000)$('cabinUsd').value=Math.round(cur*10000/rate)}
   else{$('cabinUsd').step='10';if(cur<1000)$('cabinUsd').value=Math.round(cur*rate/10000)}
   calc();
@@ -834,7 +854,7 @@ $('simMoInput').addEventListener('input',e=>{
 });
 
 function calcSubSim(){
-  const rate=+$('rate').value||1450;
+  const rate=+$('rate').value||1500;
   const mo=parseInt($('simMoInput').value)||1;
   // 클래식: 활성화비 $100 + $100/월 / 프리미엄: 활성화비 $250 + $250/월
   const monthly=simPlan==='premium'?250:100;
@@ -876,7 +896,7 @@ function calcSubSim(){
 }
 
 function calc(){
-  const rate=+$('rate').value||1450,pax=+$('pax').value||1;
+  const rate=+$('rate').value||1500,pax=+$('pax').value||1;
 
   // Agency price
   const agencyRaw=+$('agencyPrice').value||0;
