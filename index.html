@@ -307,7 +307,6 @@ footer a{display:inline-flex;align-items:center;min-height:44px;color:var(--navy
         <div class="stepper"><button data-t="pax" data-d="-1">−</button><span id="paxV">2명</span><button data-t="pax" data-d="1">+</button></div></div>
       <div class="row"><label>환율<small>₩ / $1</small></label><input type="number" id="rate" value="1500" min="100" step="10" inputmode="numeric"></div>
       <div class="row"><label>탑승일<small id="ddayTxt"></small></label><input type="date" id="boardDate"></div>
-      <div class="row"><label>선지급 구독료<small>탑승일 기준 자동 계산</small></label><span class="tag" id="preTag"></span></div>
     </div>
   </section>
 
@@ -434,11 +433,10 @@ function calc(){
   const tRw=num('rwInput');
   const sCollect=P.fee+(S.mo-1)*sub;              // 낸 구독료 전부 (첫 달 + 이후 매달)
 
-  // D-day → 선지급
-  const bd=$('boardDate').value;let dday=null,pre=0;
-  if(bd){dday=Math.ceil((new Date(bd)-new Date())/864e5);pre=dday>=90?0:dday>=60?1:2}
+  // D-day
+  const bd=$('boardDate').value;let dday=null;
+  if(bd){dday=Math.ceil((new Date(bd)-new Date())/864e5)}
   $('ddayTxt').textContent=dday===null?'':dday>=0?`D-${dday}`:'지난 날짜';
-  $('preTag').textContent=pre?`${pre}개월 · ${fU(pre*sub)}`:'없음';
   $('moreSum').textContent=`${pax}명 · ₩${rate.toLocaleString()} · ${dday!==null&&dday>=0?'D-'+dday:'-'}`;
 
   // 결제 방식별
@@ -452,8 +450,8 @@ function calc(){
   }
 
   // 멤버십 합계
-  const upC=useUp?UP_C:0,sPre=pre*sub;
-  const mU=upC+sPre+cardPay+sCollect,mK=mU*rate;
+  const upC=useUp?UP_C:0;
+  const mU=upC+cardPay+sCollect,mK=mU*rate;
   const save=agencyKRW-mK,pct=agencyKRW>0?save/agencyKRW*100:0,pos=save>=0;
 
   // 결과
@@ -479,7 +477,6 @@ function calc(){
   if(s1)L.push([`리워드 50% 차감 (${Math.round(s1).toLocaleString()} RP)`,'−'+fU(s1)]);
   if(s2Rp)L.push([`리워드 추가 결제 (${Math.round(s2Rp).toLocaleString()} RP)`,'−'+fU(Math.floor(s2Rp/2))]);
   L.push(['카드 결제',fU(cardPay)]);
-  if(sPre)L.push([`선지급 구독료 ${pre}개월`,'+'+fU(sPre)]);
   L.push([S.mo>1?`구독료 (첫 달 ${fU(P.fee)} + ${fU(sub)} × ${S.mo-1}개월)`:`구독료 (첫 달 ${fU(P.fee)})`,'+'+fU(sCollect)]);
   $('bdNote').textContent=`${S.mo}개월 동안 낸 구독료 ${fU(sCollect+upC)}까지 모두 합계에 넣었어요. 이 돈은 ${autoRw.toLocaleString()} RP로 돌아와 이번 여행 할인과 다음 여행에 쓰여요.`;
   if(upC)L.push(['프리미엄 업그레이드','+'+fU(upC)]);
