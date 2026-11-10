@@ -184,6 +184,14 @@ details.more[open] summary::after{transform:rotate(-135deg);margin-bottom:-4px}
 .calc-line .eq.minus span:last-child{color:var(--minus)}
 .calc-line .eq.res{border-top:1px solid rgba(176,138,51,.3);margin-top:6px;padding-top:8px;font-weight:700;color:var(--navy)}
 
+.benefits ul{list-style:none}
+.benefits li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:.95rem;color:var(--ink)}
+.benefits li:last-of-type{border-bottom:none}
+.benefits li b{color:var(--navy)}
+.benefits li small{display:block;font-size:.8rem;color:var(--sub);margin-top:2px}
+.benefits .ck{width:22px;height:22px;border-radius:50%;background:var(--gold);flex-shrink:0;display:grid;place-items:center;margin-top:1px}
+.benefits .ck::after{content:'';width:5px;height:10px;border:solid var(--navy-d);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.benefits .b-end{margin-top:14px;text-align:center;font-weight:700;color:var(--navy);background:var(--gold-l);border-radius:12px;padding:12px;font-size:.95rem;line-height:1.6}
 .end-note{max-width:520px;margin:6px auto 4px;padding:16px 18px;text-align:center;font-size:.9rem;line-height:1.7;color:var(--ink);background:var(--gold-l);border-radius:14px;width:calc(100% - 32px)}
 .end-note b{color:var(--navy)}
 footer{text-align:center;padding:12px 16px 28px;font-size:.78rem;color:var(--faint)}
@@ -215,10 +223,21 @@ footer a{display:inline-flex;align-items:center;min-height:44px;color:var(--navy
 <header>
   <div class="over">CRUISE COST CALCULATOR</div>
   <h1>크루즈 비용 비교 계산기</h1>
-  <p>구독료가 리워드로 쌓이고,<br>그 리워드로 크루즈를 할인받는<br><b style="color:var(--gold)">크루즈 멤버십 구독 플랫폼</b></p>
+  <p>전 세계 크루즈를 회원가로 검색·예약하는<br><b style="color:var(--gold)">크루즈 멤버십 구독 플랫폼</b></p>
 </header>
 
 <main>
+
+  <!-- 회원 혜택 -->
+  <section class="card benefits">
+    <div class="over" style="margin-bottom:12px">MEMBER BENEFITS</div>
+    <ul>
+      <li><span class="ck"></span><div><b>회원 예약 17% 할인</b></div></li>
+      <li><span class="ck"></span><div><b>낸 구독료는 2배 리워드로 적립</b><small>적립한 리워드로 크루즈 요금 할인</small></div></li>
+      <li><span class="ck"></span><div><b>멤버십을 끝내도</b> 남은 리워드로 할인받아 갈 수 있어요</div></li>
+    </ul>
+    <p class="b-end">크루즈를 더 합리적으로 가는 방법,<br>직접 계산해보세요 !!</p>
+  </section>
 
   <!-- 1. 여행사 가격 -->
   <section class="card">
